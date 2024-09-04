@@ -21,7 +21,7 @@ export default function Home() {
 
   return (
     <View>
-      <Text>{token ? `Token: ${token}` : 'Fetching token...'}</Text>
+      <Text style={{fontFamily:'Outfit-Bold'}}>{token ? `Token: ${token}` : 'Fetching token...'}</Text>
     </View>
   );
 }

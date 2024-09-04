@@ -1,10 +1,10 @@
-import { View, Text } from 'react-native';
+// AppNav.js
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WebViewLogin from '../screens/WebViewLogin';
+import MyTabs from '../screens/Tab'; // Import MyTabs correctly
 import Login from '../screens/Login';
-import Home from '../screens/Home';
 import { useAuth } from '../context/AuthContext';
 
 const Stack = createNativeStackNavigator();
@@ -16,7 +16,12 @@ export default function AppNav() {
     <NavigationContainer>
       <Stack.Navigator>
         {authToken ? (
-          <Stack.Screen name="Home" component={Home}  options={{ headerLargeTitle:true,title:'Home',headerBlurEffect:true }}/>
+          <Stack.Screen 
+            name="Tabs" 
+            component={MyTabs} 
+            options={{ headerShown: false,headerStyle:{backgroundColor:'red'} }} 
+
+          />
         ) : (
           <>
             <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
