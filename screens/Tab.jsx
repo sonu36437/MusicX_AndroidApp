@@ -16,7 +16,7 @@ export default function MyTabs() {
           let iconName;
 
           if (route.name === 'Home') {
-            iconName = "home";
+            iconName = "planet-sharp";
           } else if (route.name === 'Search') {
             iconName = 'search';
           } else if (route.name === 'Fav') {
@@ -46,7 +46,7 @@ export default function MyTabs() {
         tabBarActiveTintColor: 'yellow',
         tabBarInactiveTintColor: 'white',
         tabBarStyle: {
-          height: 70,
+          height: 60,
           backgroundColor: 'black',
           position: 'absolute',
           borderTopRightRadius: 5,
