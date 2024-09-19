@@ -12,9 +12,6 @@ export function AuthContextProvider({children}){
             const token= await AsyncStorage.getItem('sp_dc');
             setAuthToken(token);
             console.log("from useEffect of AuthContext",token);
-            
-
-
         }
         loadToken()
         

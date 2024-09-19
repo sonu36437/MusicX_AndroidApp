@@ -4,12 +4,14 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { fetchTracks } from '../networkRequest/spotifyRequest';
 import Loading from '../components/Loading';
 import TrackItem from '../components/TrackItem';
+import { usePlayerContext } from '../context/PlayerContext';
 
 export default function SearchPage() {
   const [input, setInput] = useState("");
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const {addToQueue,playTrack,loadMoreUrl,setLoadMoreUrl}=usePlayerContext();
 
   useEffect(() => {
     if (input.length > 0) {
@@ -40,10 +42,28 @@ export default function SearchPage() {
    
     }
   }, [input]);
+  useEffect(()=>{
+   async function formatTracks(tracks){
+
+
+    }
+  },[tracks])
+  const handleSongClick=async (index)=>{
+  
+  
+    addToQueue(tracks.album,index);
+    // playTrack(index);
+    // setLoadMoreUrl(nextPageUrl);
+
+ 
+
+    
+  
+  }
 
   const renderItem = ({ item }) => {
     return (
-        <TrackItem track={item} /> 
+        <TrackItem track={item} addToQueue={handleSongClick} /> 
     );
   };
 

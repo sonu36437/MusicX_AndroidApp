@@ -3,8 +3,9 @@ import axios from "axios";
 export const getSongSrc = async (query) => {
     console.log("fetching song src................",query);
     try {
-        console.log(query);
-        const response = await axios.get(`https://jiosaavan36437.vercel.app/api/search/songs?query=${query}&page=0&limit=1`);
+       
+        query=encodeURIComponent(query);
+        const response = await axios.get(`https://jiosaavan36437.vercel.app/api/search/songs?query=${(query)}&page=0&limit=1`);
         const song = await response.data.data.results[0]; 
         // console.log(song);
 

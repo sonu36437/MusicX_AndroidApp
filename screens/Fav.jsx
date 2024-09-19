@@ -16,7 +16,9 @@ export default function Fav() {
   const [isLoading, setIsLoading] = useState(false);
   const [nextPageUrl, setNextPageUrl] = useState(null);
   const [hasMore, setHasMore] = useState(false);
-  const {addToFavTracks,favTracks,playTrackFromQueue}=usePlayerContext();
+  const {addToQueue,playTrack,loadMoreUrl,setLoadMoreUrl}=usePlayerContext();
+
+ 
   
 
 
@@ -27,6 +29,7 @@ export default function Fav() {
         const data = await fetchTracks();
         setTracks(data.items);
         setNextPageUrl(data.next);
+       
         setHasMore(data.next);
       } catch (err) {
         setError('Failed to fetch tracks');
@@ -64,8 +67,13 @@ export default function Fav() {
   };
   const handleSongClick=async (index)=>{
     console.log(tracks[index].track.album.images[0].url);
-    await addToFavTracks(tracks,index);
-    await playTrackFromQueue(favTracks,index);
+  
+    addToQueue(tracks,index);
+    // playTrack(index);
+    setLoadMoreUrl(nextPageUrl);
+
+ 
+
     
   
   }
@@ -81,7 +89,7 @@ export default function Fav() {
         <Text style={styles.title}>Liked Songs</Text>
       </View>
       {error && <Text style={styles.errorText}>{error}</Text>}
-      <FlatList
+   { tracks.length>0?  <FlatList
         data={tracks}
         renderItem={renderItem}
         keyExtractor={(item) => item.track.id}
@@ -89,7 +97,8 @@ export default function Fav() {
         onEndReached={loadMoreTracks}
         onEndReachedThreshold={0.5}
         ListFooterComponent={isLoading ? <Text style={styles.loadingText}>Loading...</Text> : null}
-      />
+      />:
+      <Text style={styles.loadingText}>You haven't any Songs</Text>}
  
     </View>
   );

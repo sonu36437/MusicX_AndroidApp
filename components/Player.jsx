@@ -6,7 +6,9 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { usePlayerContext } from '../context/PlayerContext';
 
 export default function Player() {
-  const { currentTrack, playNextTrack, playPreviousTrack, pauseTrack, resumeTrack, isPlaying, setIsPlaying } = usePlayerContext();
+  const { currentTrack, skipToNext, playPreviousTrack, pauseTrack, resumeTrack, isPlaying, setIsPlaying, favTracks,
+    searchTracks,
+    playlistTracks } = usePlayerContext();
   const playbackState = usePlaybackState();
   const progress= useProgress(); 
   
@@ -14,11 +16,11 @@ export default function Player() {
   const [volume, setVolume] = useState(0.5); 
 
 useEffect(()=>{
-    console.log(progress.position===progress.duration);
+
     if(progress.position>progress.duration){
       console.log("playing next track");
       async function moveNext(){
-        await playNextTrack();
+        await skipToNext();
       }
       moveNext();
     }
@@ -56,7 +58,7 @@ useEffect(()=>{
    
   return (
     <>
-      {/* Compact Player */}
+
       {currentTrack && !showFullScreen && (
         <TouchableOpacity style={styles.container} onPress={toggleFullScreen}>
           <Image source={{ uri: currentTrack?.artwork }} style={styles.artwork} />
@@ -71,7 +73,7 @@ useEffect(()=>{
             <TouchableOpacity onPress={togglePlayPause}>
               <Ionicons name={isPlaying ? 'pause-circle' : 'play-circle'} size={50} color="white" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={playNextTrack}>
+            <TouchableOpacity onPress={skipToNext}>
               <Ionicons name="play-skip-forward" size={30} color="white" />
             </TouchableOpacity>
           </View>
@@ -80,7 +82,9 @@ useEffect(()=>{
 
       {/* Full-Screen Player */}
       {currentTrack && (
+        
         <Modal visible={showFullScreen} animationType="slide" transparent={true}>
+        
           <View style={styles.fullScreenContainer}>
             <TouchableOpacity onPress={toggleFullScreen} style={styles.closeButton}>
               <Ionicons name="close" size={30} color="white" />
@@ -114,7 +118,7 @@ useEffect(()=>{
               <TouchableOpacity onPress={togglePlayPause}>
                 <Ionicons name={isPlaying ? 'pause-circle' : 'play-circle'} size={70} color="white" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={playNextTrack}>
+              <TouchableOpacity onPress={skipToNext}>
                 <Ionicons name="play-skip-forward" size={40} color="white" />
               </TouchableOpacity>
             </View>

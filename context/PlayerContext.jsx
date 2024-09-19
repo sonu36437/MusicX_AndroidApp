@@ -1,166 +1,155 @@
-import TrackPlayer from 'react-native-track-player';
-import { createContext, useEffect, useState, useContext } from 'react';
-import { getSongSrc } from '../networkRequest/songSrc';  // Assuming this fetches the song URL dynamically
+import TrackPlayer, { usePlaybackState } from 'react-native-track-player';
+import { createContext, useEffect, useState, useContext, useCallback } from 'react';
+import { getSongSrc } from '../networkRequest/songSrc';
+import { loadMore } from '../networkRequest/loadMore';
 import { Alert } from 'react-native';
-import { usePlaybackState } from 'react-native-track-player';
 
 export const PlayerContext = createContext();
-
 
 export const PlayerContextProvider = ({ children }) => {
   const playbackState = usePlaybackState();
   const [currentTrack, setCurrentTrack] = useState(null);
-  const [currentQueue, setCurrentQueue] = useState(null);
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState();
   const [isPlaying, setIsPlaying] = useState(false);
-  
-  const [favTracks, setFavTracks] = useState([]);
-  const [searchTracks, setSearchTracks] = useState([]);
-  const [playlistTracks, setPlaylistTracks] = useState([]);
-
-  // Setup the player when the app starts
+  const [isReady, setIsReady] = useState(false);
+  const [queue, setQueue] = useState([]);
+  const [loadMoreUrl, setLoadMoreUrl] = useState(null);
   useEffect(() => {
-    const setupPlayer = async () => {
-      await TrackPlayer.setupPlayer();
-      TrackPlayer.updateOptions({
-        stopWithApp: false,
-        capabilities: [
-          TrackPlayer.CAPABILITY_PLAY,
-          TrackPlayer.CAPABILITY_PAUSE,
-          TrackPlayer.CAPABILITY_SKIP_TO_NEXT,
-          TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
-        ],
-        android:{
-          appKilledPlaybackBehavior:TrackPlayer.AppKilledPlaybackBehavior.ContinuePlayback
-        }
-      });
-      console.log('Player setup complete');
-    };
-    setupPlayer();
-  }, []);
+    playTrack(currentIndex);
+
+  }, [queue])
+  
+
 
   useEffect(() => {
-    console.log("Favorite tracks count:", favTracks.length);
-    console.log(favTracks);
-  }, [favTracks]);
+    if (currentIndex === queue?.length -1) {
+      
 
-
-  const addTrackToPlayer = async (track) => {
-    // console.log("track is",track);
-    try {
-  
-      const songUrl = await getSongSrc(track.title + " " + track.artists);
-      if (!songUrl) {
-       Alert.alert("No song found we are working on it");
-        return;
+      loadMore(loadMoreUrl).then(d => {
+        if(d.next){ 
+        setQueue(prevQueue => [...prevQueue, ...d.items])
+        setLoadMoreUrl(d.next)
       }
 
-      const newTrack = { 
-        id: track.id, 
-        
-        url: songUrl[songUrl.length - 1].url, 
-        title: track.title, 
-        artist: track.artists ,
-        thumbnail: track?.thumbnail,
+      });
+    }
+  }, [currentIndex, queue])
 
+  useEffect(() => {
+    const setupPlayer = async () => {
+      try {
+        await TrackPlayer.setupPlayer();
+        console.log('Player setup complete');
+      } catch (error) {
+        console.error('Error setting up player:', error);
+      }
+    };
+    !isReady && setupPlayer();
+    setIsReady(true);
+  }, []);
+  useEffect(() => {
+
+
+
+  }, [queue])
+
+  const addToQueue = useCallback(async (tracks, songToBePlayedIndex) => {
+    console.log("from add to queue",tracks);
+    setQueue(tracks);
+    setCurrentIndex(songToBePlayedIndex);
+  }, []);
+
+  const fetchAndPlayTrack = useCallback(async (track) => {
+
+    track = track.track;
+    console.log(track.artists[0].name);
+
+
+    try {
+      const songUrl = await getSongSrc(track.name + " " + track.artists[0].name);
+
+      if (!songUrl) {
+        console.error('No song URL found');
+        skipToNext()
+        return;
+
+
+      }
+
+      const formattedTrack = {
+        id: track.id,
+        url: songUrl[songUrl.length - 1].url,
+        title: track.name,
+        artists: track.artists.map(artist => artist.name).join(", "),
+        artwork: track?.album?.images[0]?.url,
       };
-      await TrackPlayer.reset();
-      await TrackPlayer.add(newTrack);
-      await TrackPlayer.play();
-      console.log("Track added to player");
 
-   
-      setCurrentTrack(track);
-    
+
+      await TrackPlayer.reset();
+      await TrackPlayer.add(formattedTrack);
+      await TrackPlayer.play();
+      setCurrentTrack(formattedTrack);
+
       setIsPlaying(true);
     } catch (error) {
-      console.error('Error adding track to player: ', error);
+      console.error('Error fetching and playing track:', error);
     }
-  };
+  }, []);
 
-
-  const playTrackFromQueue = async (queue, index) => {
-    console.log(index);
-    const track = queue[index];
-    setCurrentTrack(track);
-    // console.log("tracks is",track);
-    setCurrentTrackIndex(index);
-    await addTrackToPlayer(track); 
-  };
-
- 
-  const addToFavTracks = (tracks, index) => {
-
-    if (favTracks.length === 0 || favTracks.length <=index) {
-      console.log("add to fav executeed");
-      const formattedTracks = tracks.map(track => ({
-        id: track.track.id,
-        title: track.track.name,
-        artists: track.track.artists.map(artist => artist.name).join(', '),
-        album: track.track.album.name,
-        artwork: track.track.album.images[0].url,
-       
-      }));
-     
-
-      playTrackFromQueue(formattedTracks,index);
-     
-
-      setFavTracks(() => formattedTracks);
-      setCurrentQueue("favTracks")
+  const playTrack = useCallback(async (index,track) => {
+    if (index >= 0 && index < queue.length) {
+      await fetchAndPlayTrack(queue[index]||track);
+      setCurrentIndex(index);
     }
-   
-  };
+  
+  }, [queue, fetchAndPlayTrack, currentIndex]);
 
-  const playNextTrack = async () => {
-    // if (currentTrackIndex < currentQueue.length - 1) {
-    //   const nextIndex = currentTrackIndex + 1;
-    //   await playTrackFromQueue(currentQueue, nextIndex);
-    // }
-    console.log(currentQueue);
-    if(currentQueue === "favTracks"  && currentTrackIndex <= favTracks.length - 1){
-      const nextIndex = currentTrackIndex+1;
-      await playTrackFromQueue(favTracks, nextIndex);
-    }
-  };
-
-  const playPreviousTrack = async () => {
-    if (currentTrackIndex > 0) {
-      const prevIndex = currentTrackIndex - 1;
-      await playTrackFromQueue(currentQueue, prevIndex);
-    }
-  };
-
-  const pauseTrack = async () => {
+  const pauseTrack = useCallback(async () => {
     await TrackPlayer.pause();
     setIsPlaying(false);
-  
-  };
+  }, []);
 
-  const resumeTrack = async () => {
+  const resumeTrack = useCallback(async () => {
     await TrackPlayer.play();
     setIsPlaying(true);
-  
+  }, []);
+
+  const skipToNext = useCallback(async () => {
+    console.log(queue.length);
+
+
+    const nextIndex = (currentIndex + 1) % queue.length;
+
+    console.log(nextIndex);
+    await playTrack(nextIndex);
+    setCurrentIndex(nextIndex);
+
+
+  }, [queue, currentIndex]);
+
+  const skipToPrevious = useCallback(async () => {
+    const currentIndex = queue.findIndex(track => track.id === currentTrack?.id);
+    if (currentIndex > 0) {
+      await playTrack(currentIndex - 1);
+    }
+  }, [queue, currentTrack, playTrack]);
+
+  const contextValue = {
+    currentTrack,
+    isPlaying,
+    queue,
+    addToQueue,
+    playTrack,
+    pauseTrack,
+    resumeTrack,
+    setLoadMoreUrl,
+    loadMoreUrl,
+    skipToNext,
+    skipToPrevious,
   };
 
   return (
-    <PlayerContext.Provider value={{
-      currentTrack,
-      currentTrackIndex,
-      isPlaying,
-      setIsPlaying,
-      favTracks,
-      searchTracks,
-      playlistTracks,
-      addToFavTracks,
-      addToSearchTracks: (track) => setSearchTracks([...searchTracks, track]),
-      addToPlaylistTracks: (track) => setPlaylistTracks([...playlistTracks, track]),
-      playTrackFromQueue,
-      playNextTrack,
-      playPreviousTrack,
-      pauseTrack,
-      resumeTrack,
-    }}>
+    <PlayerContext.Provider value={contextValue}>
       {children}
     </PlayerContext.Provider>
   );
