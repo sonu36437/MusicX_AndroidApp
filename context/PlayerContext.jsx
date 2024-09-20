@@ -1,5 +1,5 @@
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player';
-import { createContext, useEffect, useState, useContext, useCallback } from 'react';
+import { createContext, useEffect, useState,useRef, useContext, useCallback } from 'react';
 import { getSongSrc } from '../networkRequest/songSrc';
 import { loadMore } from '../networkRequest/loadMore';
 import { Alert } from 'react-native';
@@ -12,22 +12,23 @@ export const PlayerContextProvider = ({ children }) => {
   const [currentIndex, setCurrentIndex] = useState();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isReady, setIsReady] = useState(false);
-  const [queue, setQueue] = useState([]);
+  const queue = useRef([]);
   const [loadMoreUrl, setLoadMoreUrl] = useState(null);
   useEffect(() => {
     playTrack(currentIndex);
+    console.log(queue.current[currentIndex]);
 
-  }, [queue])
+  }, [currentIndex])
   
 
 
   useEffect(() => {
-    if (currentIndex === queue?.length -1) {
+    if (currentIndex === queue.current.length -3) {
       
 
       loadMore(loadMoreUrl).then(d => {
         if(d.next){ 
-        setQueue(prevQueue => [...prevQueue, ...d.items])
+        queue.current = [...queue.current, ...d.items]
         setLoadMoreUrl(d.next)
       }
 
@@ -54,8 +55,8 @@ export const PlayerContextProvider = ({ children }) => {
   }, [queue])
 
   const addToQueue = useCallback(async (tracks, songToBePlayedIndex) => {
-    console.log("from add to queue",tracks);
-    setQueue(tracks);
+  
+    queue.current = tracks;
     setCurrentIndex(songToBePlayedIndex);
   }, []);
 
@@ -97,8 +98,8 @@ export const PlayerContextProvider = ({ children }) => {
   }, []);
 
   const playTrack = useCallback(async (index,track) => {
-    if (index >= 0 && index < queue.length) {
-      await fetchAndPlayTrack(queue[index]||track);
+    if (index >= 0 && index < queue.current.length) {
+      await fetchAndPlayTrack(queue.current[index]||track);
       setCurrentIndex(index);
     }
   
@@ -115,24 +116,25 @@ export const PlayerContextProvider = ({ children }) => {
   }, []);
 
   const skipToNext = useCallback(async () => {
-    console.log(queue.length);
+    console.log(queue.current.length);
+  
 
 
-    const nextIndex = (currentIndex + 1) % queue.length;
+    const nextIndex = (currentIndex + 1) % queue.current.length;
 
     console.log(nextIndex);
     await playTrack(nextIndex);
     setCurrentIndex(nextIndex);
 
 
-  }, [queue, currentIndex]);
+  }, [queue.current,currentIndex]);
 
   const skipToPrevious = useCallback(async () => {
-    const currentIndex = queue.findIndex(track => track.id === currentTrack?.id);
+    const currentIndex = queue.current.findIndex(track => track.id === currentTrack?.id);
     if (currentIndex > 0) {
       await playTrack(currentIndex - 1);
     }
-  }, [queue, currentTrack, playTrack]);
+  }, [queue.current, currentTrack, playTrack]);
 
   const contextValue = {
     currentTrack,
