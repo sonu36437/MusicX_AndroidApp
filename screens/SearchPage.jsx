@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, StyleSheet, Text, ActivityIndicator, FlatList } from 'react-native';
+import { View, TextInput, StyleSheet, Text, FlatList } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { fetchTracks } from '../networkRequest/spotifyRequest';
 import Loading from '../components/Loading';
@@ -11,17 +11,15 @@ export default function SearchPage() {
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const {addToQueue,playTrack,loadMoreUrl,setLoadMoreUrl}=usePlayerContext();
+  const { addToQueue,queue } = usePlayerContext();
 
   useEffect(() => {
     if (input.length > 0) {
       const fetchData = async () => {
         setLoading(true);
         try {
-          const URL = `https://api.spotify.com/v1/search?q=${encodeURIComponent(input)}&type=track,album,artist&limit=10`;
+          const URL = `https://api.spotify.com/v1/search?q=${encodeURIComponent(input)}&type=track&limit=10`;
           const response = await fetchTracks(URL);
-          console.log(response.tracks.items);
-          
           setTracks(response.tracks.items); 
           setError(null);
         } catch (e) {
@@ -30,72 +28,50 @@ export default function SearchPage() {
           setLoading(false);
         }
       };
-      const timeOut=setTimeout(()=>{
-        if(input){
-          fetchData()
+      const timeOut = setTimeout(() => {
+        if (input) {
+          fetchData();
         }
-      },500)
-      return ()=>{
-        clearTimeout(timeOut)
-      }
-      
-   
+      }, 500);
+      return () => {
+        clearTimeout(timeOut);
+      };
     }
   }, [input]);
-  useEffect(()=>{
-   async function formatTracks(tracks){
 
-
-    }
-  },[tracks])
-  const handleSongClick=async (index)=>{
-  
-  
-    addToQueue(tracks.album,index);
-    // playTrack(index);
-    // setLoadMoreUrl(nextPageUrl);
-
- 
-
-    
-  
-  }
-
-  const renderItem = ({ item }) => {
-    return (
-        <TrackItem track={item} addToQueue={handleSongClick} /> 
-    );
+  const handleSongClick = (index) => {
+    // Add to queue
+    console.log(tracks);
+    addToQueue(tracks, index,"search");
   };
+
+  const renderItem = ({ item, index }) => (
+    <TrackItem track={item} index={index} addToQueue={() => handleSongClick(index)} />
+  );
 
   return (
     <View style={styles.container}>
       <View>
-        <Text style={styles.title}>
-          Search for songs or Artists
-        </Text>
+        <Text style={styles.title}>Search for songs or Artists</Text>
       </View>
       <View style={styles.searchBar}>
         <Ionicons name="search" size={20} color="black" style={styles.icon} />
         <TextInput
           style={styles.input}
-          placeholder="search for songs......."
+          placeholder="Search for songs..."
           placeholderTextColor="black"
           onChangeText={text => setInput(text)}
-      
         />
       </View>
       {loading && <Loading />}
       {error && <Text style={styles.error}>{error}</Text>}
-      {console.log(tracks)}
-      {tracks.length>0 ? <Text style={{color:"white",fontFamily:"Outfit-Bold", fontSize:25, marginTop:30}}>Songs</Text>:null}
-
+      {tracks.length > 0 && <Text style={styles.songsTitle}>Songs</Text>}
       <FlatList
         data={tracks}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}  
+        keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
-        onEndReachedThreshold={0.5}
-        style={{marginTop:20}}
+        style={{ marginTop: 20 }}
       />
     </View>
   );
@@ -107,7 +83,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
     padding: 5,
     width: '100%',
-    paddingBottom:120,
+    paddingBottom: 120,
   },
   title: {
     color: 'white',
@@ -138,7 +114,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
   },
+  songsTitle: {
+    color: "white",
+    fontFamily: "Outfit-Bold",
+    fontSize: 25,
+    marginTop: 30,
+  },
   listContent: {
     paddingBottom: 20,
-  }
+  },
 });

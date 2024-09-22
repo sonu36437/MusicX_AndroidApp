@@ -14,7 +14,7 @@ const Stack = createNativeStackNavigator();
 
 export default function AppNav() {
   const { authToken } = useAuth();
-  const [isLoading, setIsLoading] = useState();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
