@@ -4,45 +4,61 @@ import TrackPlayer, { usePlaybackState, useProgress } from 'react-native-track-p
 import Slider from '@react-native-community/slider';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { usePlayerContext } from '../context/PlayerContext';
+import BufferingIcon from './BufferingIcon';
 
 export default function Player() {
-  const { currentTrack, skipToNext, playPreviousTrack, pauseTrack, resumeTrack, isPlaying, setIsPlaying, favTracks,
-    searchTracks,
-    playlistTracks } = usePlayerContext();
+  const { currentTrack, skipToNext, playPreviousTrack,isBuffering,setIsBuffering } = usePlayerContext();
+  const [isPlaying, setIsPlaying] = useState(false);
+  // const [isBuffering,setIsBuffering]=useState(true);
   const playbackState = usePlaybackState();
-  const progress= useProgress(); 
-  
-  const [showFullScreen, setShowFullScreen] = useState(false); 
-  const [volume, setVolume] = useState(0.5); 
-  useEffect(()=>{
-    console.log("curejlsdjflsjddlfjsdljflj");
-  },[currentTrack])
+  const progress = useProgress();
 
-useEffect(()=>{
+  const [showFullScreen, setShowFullScreen] = useState(false);
+  const [volume, setVolume] = useState(0.5);
+  // useEffect(()=>{
+  //   console.log("curejlsdjflsjddlfjsdljflj");
+  // },[currentTrack])
 
-    if(progress.position>progress.duration){
+  useEffect(() => {
+
+    if (progress.position > progress.duration) {
       console.log("playing next track");
-      async function moveNext(){
+      async function moveNext() {
         await skipToNext();
       }
       moveNext();
     }
 
-},[progress.position])
+  }, [progress.position])
 
 
- 
+
 
   const togglePlayPause = async () => {
     if (isPlaying) {
-      await pauseTrack();
+      await TrackPlayer.pause();
     } else {
-      await resumeTrack();
+      await TrackPlayer.play();
     }
   };
 
-  useEffect(() => {console.log(playbackState.state)},[playbackState])
+  useEffect(() => {
+    console.log(playbackState.state)
+    if (playbackState.state === "playing") {
+      setIsPlaying(true) 
+      setIsBuffering(false)
+
+    }
+    else if(playbackState.state==='buffering'){
+      
+      setIsBuffering(true);
+    }
+    
+    else setIsPlaying(false)
+
+  }, [playbackState])
   // Seek functionality to move the track position
+
   const handleSeek = async (value) => {
     await TrackPlayer.seekTo(value);
   };
@@ -58,10 +74,10 @@ useEffect(()=>{
     setShowFullScreen(!showFullScreen);
   };
 
-   
+
   return (
     <>
-    {console.log(currentTrack)}
+      {/* {console.log(currentTrack)} */}
 
       {currentTrack && !showFullScreen && (
         <TouchableOpacity style={styles.container} onPress={toggleFullScreen}>
@@ -75,7 +91,7 @@ useEffect(()=>{
               <Ionicons name="play-skip-back" size={30} color="white" />
             </TouchableOpacity>
             <TouchableOpacity onPress={togglePlayPause}>
-              <Ionicons name={isPlaying ? 'pause-circle' : 'play-circle'} size={50} color="white" />
+              {isBuffering?<BufferingIcon/>:<Ionicons name={isPlaying ? 'pause-circle' : 'play-circle'} size={50} color="white" />}
             </TouchableOpacity>
             <TouchableOpacity onPress={skipToNext}>
               <Ionicons name="play-skip-forward" size={30} color="white" />
@@ -86,9 +102,9 @@ useEffect(()=>{
 
       {/* Full-Screen Player */}
       {currentTrack && (
-        
+
         <Modal visible={showFullScreen} animationType="slide" transparent={true}>
-        
+
           <View style={styles.fullScreenContainer}>
             <TouchableOpacity onPress={toggleFullScreen} style={styles.closeButton}>
               <Ionicons name="close" size={30} color="white" />
@@ -97,7 +113,7 @@ useEffect(()=>{
             <Image source={{ uri: currentTrack?.artwork }} style={styles.fullArtwork} />
             <Text style={styles.fullTitle}>{currentTrack?.title || 'Unknown Title'}</Text>
             <Text style={styles.fullArtist}>{currentTrack?.artists || 'Unknown Artist'}</Text>
-            
+
             <Slider
               style={styles.slider}
               value={progress.position}
@@ -113,38 +129,38 @@ useEffect(()=>{
               <Text style={styles.time}>{new Date(progress.duration * 1000).toISOString().substr(14, 5)}</Text>
             </View>
 
-           
+
 
             <View style={styles.fullControls}>
               <TouchableOpacity onPress={playPreviousTrack}>
                 <Ionicons name="play-skip-back" size={40} color="white" />
               </TouchableOpacity>
               <TouchableOpacity onPress={togglePlayPause}>
-                <Ionicons name={isPlaying ? 'pause-circle' : 'play-circle'} size={70} color="white" />
+              {isBuffering?<BufferingIcon/>:<Ionicons name={isPlaying ? 'pause-circle' : 'play-circle'} size={70} color="white" />}
               </TouchableOpacity>
               <TouchableOpacity onPress={skipToNext}>
                 <Ionicons name="play-skip-forward" size={40} color="white" />
               </TouchableOpacity>
             </View>
-             {/* Volume Slider */}
-             {/* <Text style={styles.volumeLabel}>Volume</Text> */}
-             <View style={styles.volumeSliderContainer}>
-                <Ionicons name='volume-high' size={30} color='white'/>
-                <Slider
-              style={styles.volumeSlider}
-              value={volume}
-              minimumValue={0}
-              maximumValue={1}
-              onValueChange={handleVolumeChange}
-              minimumTrackTintColor="#1DB954"
-              maximumTrackTintColor="#000000"
-              thumbTintColor="#1DB954"
-            />
-        
-            
+            {/* Volume Slider */}
+            {/* <Text style={styles.volumeLabel}>Volume</Text> */}
+            <View style={styles.volumeSliderContainer}>
+              <Ionicons name='volume-high' size={30} color='white' />
+              <Slider
+                style={styles.volumeSlider}
+                value={volume}
+                minimumValue={0}
+                maximumValue={1}
+                onValueChange={handleVolumeChange}
+                minimumTrackTintColor="#1DB954"
+                maximumTrackTintColor="#000000"
+                thumbTintColor="#1DB954"
+              />
+
+
             </View>
           </View>
-          
+
         </Modal>
       )}
     </>
@@ -189,7 +205,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Outfit-Bold',
 
     fontSize: 16,
-  
+
   },
   artist: {
     color: 'white',
@@ -212,7 +228,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-   
+
     top: 40,
     right: 20,
     zIndex: 1,
@@ -249,7 +265,7 @@ const styles = StyleSheet.create({
   progressContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-   
+
     width: '100%',
   },
   time: {
@@ -268,9 +284,9 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   volumeSliderContainer: {
-    flexDirection:'row',
-    position:'absolute',
-    bottom:50,
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: 50,
   },
   fullControls: {
     flexDirection: 'row',

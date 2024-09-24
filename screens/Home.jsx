@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { getAuthToken } from '../networkRequest/auth';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../context/AuthContext';
+import BufferingIcon from '../components/BufferingIcon';
 
 export default function Home() {
   const [token, setToken] = useState('');
@@ -26,6 +27,7 @@ export default function Home() {
   return (
     <View style={{backgroundColor:'black', flex:1,}}>
       <Text style={{fontFamily:'Outfit-Bold'}}>{token ? `Token: ${token}` : 'Fetching token...'}</Text>
+      <BufferingIcon/>
   <Text>  <Icon name="home-outline" size={30} color="#900" /></Text>
 
 

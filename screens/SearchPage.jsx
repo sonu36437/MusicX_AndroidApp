@@ -5,6 +5,7 @@ import { fetchTracks } from '../networkRequest/spotifyRequest';
 import Loading from '../components/Loading';
 import TrackItem from '../components/TrackItem';
 import { usePlayerContext } from '../context/PlayerContext';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 
 export default function SearchPage() {
   const [input, setInput] = useState("");
@@ -12,6 +13,7 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { addToQueue,queue } = usePlayerContext();
+  const [searchId,setSearchId]=useState();
 
   useEffect(() => {
     if (input.length > 0) {
@@ -20,6 +22,7 @@ export default function SearchPage() {
         try {
           const URL = `https://api.spotify.com/v1/search?q=${encodeURIComponent(input)}&type=track&limit=10`;
           const response = await fetchTracks(URL);
+          setSearchId(Date.now());
           setTracks(response.tracks.items); 
           setError(null);
         } catch (e) {
@@ -42,7 +45,7 @@ export default function SearchPage() {
   const handleSongClick = (index) => {
     // Add to queue
     console.log(tracks);
-    addToQueue(tracks, index,"search");
+    addToQueue(tracks, index,`search${searchId}`);
   };
 
   const renderItem = ({ item, index }) => (
