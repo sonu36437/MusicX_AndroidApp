@@ -1,51 +1,77 @@
-  import { View, Text, FlatList, StyleSheet } from 'react-native';
-  import React, { useEffect, useState } from 'react';
-  import { fetchTracks } from '../networkRequest/spotifyRequest';
-  import TrackItem from '../components/TrackItem';
-  import { usePlayerContext } from '../context/PlayerContext';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { fetchTracks } from '../networkRequest/spotifyRequest';
+import TrackItem from '../components/TrackItem';
+import { usePlayerContext } from '../context/PlayerContext';
 
-  export default function Fav() {
-    const [tracks, setTracks] = useState([]);
-    const [error, setError] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [nextPageUrl, setNextPageUrl] = useState(null);
-    const [hasMore, setHasMore] = useState(false);
-    const { addToQueue } = usePlayerContext();
+export default function Fav() {
+  const [tracks, setTracks] = useState([]);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [nextPageUrl, setNextPageUrl] = useState(null);
+  const [hasMore, setHasMore] = useState(false);
+  const { addToQueue, playMoreUrl, queue, setQueue, currentTrackIndex, addMoreSongsToQueue } = usePlayerContext();
 
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          setIsLoading(true);
-          const data = await fetchTracks();
-          const formattedTracks = data.items.map((item) => {
-          return item.track 
-          })
-          console.log(formattedTracks);
-        
-          // setTracks(data.items);
-          setTracks(formattedTracks);
-          setNextPageUrl(data.next);
-          setHasMore(data.next);
-        } catch (err) {
-          setError('Failed to fetch tracks');
-        } finally {
-          setIsLoading(false);
-        }
-      };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const data = await fetchTracks();
+        const formattedTracks = data.items.map((item) => {
+          return item.track
+        })
+        console.log(formattedTracks);
 
-      fetchData();
-    }, []);
+        // setTracks(data.items);
+        setTracks(formattedTracks);
+        setNextPageUrl(data.next);
+        setHasMore(data.next);
+        playMoreUrl.current = data.next
+      } catch (err) {
+        setError('Failed to fetch tracks');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    const loadMoreTracks = async () => {
+    fetchData();
+  }, []);
+
+
+  const loadMoreTracks = async () => {
+    if (hasMore && nextPageUrl && !isLoading) {
+      try {
+        setIsLoading(true);
+        const data = await fetchTracks(nextPageUrl);
+
+        const formattedTracks = data.items.map((item) => {
+          return item.track
+        })
+        setTracks(prevTracks => [...prevTracks, ...formattedTracks]);
+        setNextPageUrl(data.next);
+        setHasMore(data.next);
+      } catch (err) {
+        setError('Failed to load more tracks');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+
+  useEffect(() => {
+    async function fetchMoreAndAddToQueue() {
       if (hasMore && nextPageUrl && !isLoading) {
         try {
           setIsLoading(true);
           const data = await fetchTracks(nextPageUrl);
 
           const formattedTracks = data.items.map((item) => {
-          return item.track 
+            return item.track
           })
           setTracks(prevTracks => [...prevTracks, ...formattedTracks]);
+          addMoreSongsToQueue(formattedTracks);
+
           setNextPageUrl(data.next);
           setHasMore(data.next);
         } catch (err) {
@@ -54,39 +80,52 @@
           setIsLoading(false);
         }
       }
-    };
+    }
 
-    const handleSongClick = (index) => {
-      addToQueue(tracks, index,"fav");
-    };
+    if (currentTrackIndex >= queue.length - 3 && tracks.length <= queue.length) {
+      fetchMoreAndAddToQueue();
+    }
+    else if (tracks.length > queue.length) {
 
-  
-    const renderItem = ({ item, index }) => (
-      <TrackItem track={item} index={index} addToQueue={() => handleSongClick(index)} />
-    );
+      const tracksNotInQueue = tracks.slice(queue.length);
 
-    return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Liked Songs</Text>
-        </View>
-        {error && <Text style={styles.errorText}>{error}</Text>}
-        {tracks.length > 0 ? (
-          <FlatList
-            data={tracks}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.listContent}
-            onEndReached={loadMoreTracks}
-            onEndReachedThreshold={0.5}
-            ListFooterComponent={isLoading ? <Text style={styles.loadingText}>Loading...</Text> : null}
-          />
-        ) : (
-          <Text style={styles.loadingText}>You haven't any Songs</Text>
-        )}
+
+      addMoreSongsToQueue(tracksNotInQueue);
+    }
+
+  }, [currentTrackIndex])
+
+  const handleSongClick = (index) => {
+    addToQueue(tracks, index, "fav");
+  };
+
+
+  const renderItem = ({ item, index }) => (
+    <TrackItem track={item} index={index} addToQueue={() => handleSongClick(index)} />
+  );
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Liked Songs</Text>
       </View>
-    );
-  }
+      {error && <Text style={styles.errorText}>{error}</Text>}
+      {tracks.length > 0 ? (
+        <FlatList
+          data={tracks}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
+          onEndReached={loadMoreTracks}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={isLoading ? <Text style={styles.loadingText}>Loading...</Text> : null}
+        />
+      ) : (
+        <Text style={styles.loadingText}>You haven't any Songs</Text>
+      )}
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {

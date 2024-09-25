@@ -11,6 +11,7 @@ export default function SearchPage() {
   const [input, setInput] = useState("");
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [nextPageUrl,setNextPageUrl]=useState();
   const [error, setError] = useState(null);
   const { addToQueue,queue } = usePlayerContext();
   const [searchId,setSearchId]=useState();
@@ -23,6 +24,7 @@ export default function SearchPage() {
           const URL = `https://api.spotify.com/v1/search?q=${encodeURIComponent(input)}&type=track&limit=10`;
           const response = await fetchTracks(URL);
           setSearchId(Date.now());
+          setNextPageUrl(response.tracks.next);
           setTracks(response.tracks.items); 
           setError(null);
         } catch (e) {

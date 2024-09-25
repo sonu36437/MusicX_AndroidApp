@@ -43,7 +43,7 @@ export default function Player() {
   };
 
   useEffect(() => {
-    console.log(playbackState.state)
+   
     if (playbackState.state === "playing") {
       setIsPlaying(true) 
       setIsBuffering(false)

@@ -2,6 +2,7 @@ import React, { createContext, useEffect, useState, useContext, useRef } from 'r
 import TrackPlayer from 'react-native-track-player';
 import { getSongSrc } from '../networkRequest/songSrc';
 import { View, Text, Button, Alert } from 'react-native';
+import { fetchTracks } from '../networkRequest/spotifyRequest';
 
 const debounce = (func, wait) => {
   let timeout;
@@ -39,6 +40,7 @@ export const PlayerContextProvider = ({ children }) => {
     };
     setupPlayer();
   }, []);
+ 
 
 
 
@@ -83,6 +85,11 @@ export const PlayerContextProvider = ({ children }) => {
 
 
   }
+  const addMoreSongsToQueue=(tracks)=>{
+  const moreSongs=  formattedTracks(tracks);
+  setQueue((prev)=>[...prev,...moreSongs]);
+
+  }
 
   const addToQueue = async (tracks, songToBePlayedIndex, source) => {
     if (queue.length <= 0 || songToBePlayedIndex > queue.length - 1 || source !== currentSource) {
@@ -111,6 +118,7 @@ export const PlayerContextProvider = ({ children }) => {
       setCurrentTrackIndex(nextTrackIndex);
       setCurrentTrack(queue[nextTrackIndex]);
       currentTrackPlaying.current = queue[nextTrackIndex];
+      console.log(playMoreUrl.current);
 
     }
   };
@@ -124,7 +132,7 @@ export const PlayerContextProvider = ({ children }) => {
       skipToNext,
       isBuffering,
       setIsBuffering,
-      playMoreUrl
+      playMoreUrl,queue,setQueue,currentTrackIndex,addMoreSongsToQueue
 
     }}>
       {children}
