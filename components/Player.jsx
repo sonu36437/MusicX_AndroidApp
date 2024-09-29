@@ -1,38 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Modal } from 'react-native';
-import TrackPlayer, { usePlaybackState, useProgress } from 'react-native-track-player';
+import TrackPlayer, { usePlaybackState, useProgress,Event } from 'react-native-track-player';
 import Slider from '@react-native-community/slider';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { usePlayerContext } from '../context/PlayerContext';
 import BufferingIcon from './BufferingIcon';
 
 export default function Player() {
-  const { currentTrack, skipToNext, playPreviousTrack,isBuffering,setIsBuffering } = usePlayerContext();
+  const {  skipToNext, skipToPrevious, isBuffering, setIsBuffering } = usePlayerContext();
   const [isPlaying, setIsPlaying] = useState(false);
-  // const [isBuffering,setIsBuffering]=useState(true);
+  const [currentTrack,setCurrentTrack]=useState(null);
   const playbackState = usePlaybackState();
   const progress = useProgress();
 
   const [showFullScreen, setShowFullScreen] = useState(false);
   const [volume, setVolume] = useState(0.5);
-  // useEffect(()=>{
-  //   console.log("curejlsdjflsjddlfjsdljflj");
-  // },[currentTrack])
 
   useEffect(() => {
+    console.log("Player component mounted");
 
-    if (progress.position > progress.duration) {
-      console.log("playing next track");
-      async function moveNext() {
-        await skipToNext();
+    // Set up the event listener
+    const listener = TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, async (event) => {
+      if (event.track) {
+        console.log("Active track changed:", event.track);
+        setCurrentTrack(event.track);
       }
-      moveNext();
-    }
+    });
+    TrackPlayer.addEventListener(Event.RemoteNext,()=>{
+      console.log("Next button pressed");
+    })
 
-  }, [progress.position])
 
-
-
+    // Clean up the event listener when the component unmounts
+    return () => {
+      listener.remove();
+    };
+  }, []);
 
   const togglePlayPause = async () => {
     if (isPlaying) {
@@ -43,27 +46,21 @@ export default function Player() {
   };
 
   useEffect(() => {
-   
     if (playbackState.state === "playing") {
-      setIsPlaying(true) 
-      setIsBuffering(false)
-
-    }
-    else if(playbackState.state==='buffering'){
-      
+      setIsPlaying(true);
+      setIsBuffering(false);
+    } else if (playbackState.state === 'buffering') {
       setIsBuffering(true);
+    } else {
+      setIsPlaying(false);
     }
-    
-    else setIsPlaying(false)
+  }, [playbackState]);
 
-  }, [playbackState])
   // Seek functionality to move the track position
-
   const handleSeek = async (value) => {
     await TrackPlayer.seekTo(value);
   };
-
-
+  
   // Adjust volume
   const handleVolumeChange = async (value) => {
     setVolume(value);
@@ -74,20 +71,19 @@ export default function Player() {
     setShowFullScreen(!showFullScreen);
   };
 
-
   return (
     <>
       {/* {console.log(currentTrack)} */}
 
       {currentTrack && !showFullScreen && (
-        <TouchableOpacity style={styles.container} onPress={toggleFullScreen}>
-          <Image source={{ uri: currentTrack?.artwork }} style={styles.artwork} />
+        <TouchableOpacity style={styles.container} onPress={toggleFullScreen}> 
+             <Image source={{ uri: currentTrack?.artwork }} style={styles.artwork} />
           <View style={styles.trackInfo}>
             <Text style={styles.title}>{currentTrack?.title || 'Unknown Title'}</Text>
-            <Text style={styles.artist}>{currentTrack?.artists || 'Unknown Artist'}</Text>
+            <Text style={styles.artist}>{currentTrack?.artists|| 'Unknown Artist'}</Text>
           </View>
           <View style={styles.controls}>
-            <TouchableOpacity onPress={playPreviousTrack}>
+            <TouchableOpacity onPress={skipToPrevious}>
               <Ionicons name="play-skip-back" size={30} color="white" />
             </TouchableOpacity>
             <TouchableOpacity onPress={togglePlayPause}>
@@ -110,9 +106,9 @@ export default function Player() {
               <Ionicons name="close" size={30} color="white" />
             </TouchableOpacity>
 
-            <Image source={{ uri: currentTrack?.artwork }} style={styles.fullArtwork} />
+            <Image source={{ uri: currentTrack?.artwork }} style={styles.artwork} />
             <Text style={styles.fullTitle}>{currentTrack?.title || 'Unknown Title'}</Text>
-            <Text style={styles.fullArtist}>{currentTrack?.artists || 'Unknown Artist'}</Text>
+            <Text style={styles.fullArtist}>{currentTrack?.artists?.[0]?.name || 'Unknown Artist'}</Text>
 
             <Slider
               style={styles.slider}
@@ -132,7 +128,7 @@ export default function Player() {
 
 
             <View style={styles.fullControls}>
-              <TouchableOpacity onPress={playPreviousTrack}>
+              <TouchableOpacity onPress={skipToPrevious}>
                 <Ionicons name="play-skip-back" size={40} color="white" />
               </TouchableOpacity>
               <TouchableOpacity onPress={togglePlayPause}>
@@ -187,8 +183,8 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   artwork: {
-    width: 60,
-    height: 60,
+    width: 380,
+    height: 380,
     borderRadius: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

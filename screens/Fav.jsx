@@ -10,7 +10,7 @@ export default function Fav() {
   const [isLoading, setIsLoading] = useState(false);
   const [nextPageUrl, setNextPageUrl] = useState(null);
   const [hasMore, setHasMore] = useState(false);
-  const { addToQueue, playMoreUrl, queue, setQueue, currentTrackIndex, addMoreSongsToQueue } = usePlayerContext();
+  const { addToQueue, addMoreSongsToQueue } = usePlayerContext();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,7 +20,7 @@ export default function Fav() {
         const formattedTracks = data.items.map((item) => {
           return item.track
         })
-        console.log(formattedTracks);
+        // console.log(formattedTracks);
 
         // setTracks(data.items);
         setTracks(formattedTracks);
@@ -65,13 +65,9 @@ export default function Fav() {
         try {
           setIsLoading(true);
           const data = await fetchTracks(nextPageUrl);
-
-          const formattedTracks = data.items.map((item) => {
-            return item.track
-          })
+          const formattedTracks = data.items.map((item) => item.track);
           setTracks(prevTracks => [...prevTracks, ...formattedTracks]);
           addMoreSongsToQueue(formattedTracks);
-
           setNextPageUrl(data.next);
           setHasMore(data.next);
         } catch (err) {
@@ -82,18 +78,10 @@ export default function Fav() {
       }
     }
 
-    if (currentTrackIndex >= queue.length - 3 && tracks.length <= queue.length) {
+    if (tracks.length < 20) { // Example: fetch more when less than 20 tracks are available
       fetchMoreAndAddToQueue();
     }
-    else if (tracks.length > queue.length) {
-
-      const tracksNotInQueue = tracks.slice(queue.length);
-
-
-      addMoreSongsToQueue(tracksNotInQueue);
-    }
-
-  }, [currentTrackIndex])
+  }, [tracks.length, hasMore, nextPageUrl, isLoading]);
 
   const handleSongClick = (index) => {
     addToQueue(tracks, index, "fav");
