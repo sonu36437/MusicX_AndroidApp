@@ -44,7 +44,7 @@ export const PlayerContextProvider = ({ children }) => {
 
     if (queueLength < 1 || queueLength < index || source !== currentSource) {
      if(nextPageBaseUrl!==null) playerManagement.fetchMoreUrl=nextPageBaseUrl;
-      // console.log(tracks[index]);
+  
       if (source !== currentSource) {
         playerManagement.clearQueue();
       }
