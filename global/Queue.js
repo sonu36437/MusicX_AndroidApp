@@ -5,8 +5,16 @@ class SongQueue{
         this.currentSong=null;  
     }
 
-    addSong(song){
-        this.queue.push(song);
+    addSong(songs,index){
+
+        
+
+ this.queue=songs;
+ this.currentIndex=index;
+ 
+    }
+    addMoreSongs(songs){
+        this.queue=[...this.queue,...songs]
     }
     clearQueue(){
         this.queue = [];
@@ -20,6 +28,7 @@ class SongQueue{
     }
     getNextSong(){
         if(this.queue.length>0){
+            console.log(this.currentIndex);
             this.currentIndex = (this.currentIndex+1)%this.queue.length;
             return this.queue[this.currentIndex];
         }
@@ -39,10 +48,11 @@ class SongQueue{
         this.currentIndex = index;
     }
     getSongOfParticularIndex(index){
-       return this.queue[index];
+        if(index>=0 && index<this.queue.length){      return this.queue[index];
     
  
     }
+}
     getQueueLength(){
         return this.queue.length;
     }

@@ -34,7 +34,7 @@ export default function MyTabs() {
                 width:90,
               
                 borderWidth: focused ? 2 : 0, 
-                backgroundColor: focused ? 'grey' : 'transparent', 
+                // backgroundColor: focused ? 'grey' : 'transparent', 
                 borderRadius: 50, 
                 padding:5
             

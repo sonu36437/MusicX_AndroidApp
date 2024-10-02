@@ -1,5 +1,7 @@
 import React,{createContext,useContext, useEffect,useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import playerManagement from "../global/PlayerMangement";
+import TrackPlayer from "react-native-track-player";
 
 
 const AuthContext = createContext();
@@ -21,8 +23,14 @@ export function AuthContextProvider({children}){
         console.log("from saveAuthToken of AuthContext",token);
         AsyncStorage.setItem('sp_dc',token);
     }
-    function logOut(){
+   async function logOut(){
         setAuthToken(null);
+        await playerManagement.destroyPlayer();
+        await TrackPlayer.pause();
+
+       
+        
+
         AsyncStorage.removeItem('sp_dc');
     }
 

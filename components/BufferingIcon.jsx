@@ -29,7 +29,7 @@ export default function BufferingIcon() {
   return (
     <View style={styles.container}>
       <Animated.View style={{ transform: [{ rotate }] }}>
-        <Ionicons name="sync" size={50} color="white" />
+        <Ionicons name="sync" size={40} color="white" />
       </Animated.View>
     </View>
   );

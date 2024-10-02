@@ -53,7 +53,7 @@ export default function AppNav() {
           </>
         )}
       </Stack.Navigator>
-      <Player/>
+  {   authToken &&   <Player/>}
       </View>
  
     </NavigationContainer>

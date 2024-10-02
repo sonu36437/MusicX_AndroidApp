@@ -17,12 +17,16 @@ async function playbackService() {
   TrackPlayer.addEventListener(Event.RemoteNext, () => playerManagement.skipToNext());
   TrackPlayer.addEventListener(Event.RemotePrevious, () => playerManagement.skipToPrevious());
 
-  TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, (event) => {
-    console.log('Playback active track changed:', event.track);
-  });
+  // TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, (event) => {
+  //   console.log('Playback active track changed:', event.track);
+  // });
+  TrackPlayer.addEventListener(Event.RemoteSeek, (event) =>{
+   
+    TrackPlayer.seekTo(event.position);
+  })
   
-  TrackPlayer.addEventListener(Event.PlaybackQueueEnded, async (event) => {
-    console.log('Playback queue ended:', event.track);
+  TrackPlayer.addEventListener('playback-queue-ended', async (event) => {
+    // console.log('Playback queue ended:', event.track);
     await playerManagement.skipToNext();
   });
 }

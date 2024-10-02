@@ -22,13 +22,11 @@ export default function Player() {
     // Set up the event listener
     const listener = TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, async (event) => {
       if (event.track) {
-        console.log("Active track changed:", event.track);
+  
         setCurrentTrack(event.track);
       }
     });
-    TrackPlayer.addEventListener(Event.RemoteNext,()=>{
-      console.log("Next button pressed");
-    })
+   
 
 
     // Clean up the event listener when the component unmounts
@@ -56,6 +54,7 @@ export default function Player() {
     }
   }, [playbackState]);
 
+
   // Seek functionality to move the track position
   const handleSeek = async (value) => {
     await TrackPlayer.seekTo(value);
@@ -80,17 +79,17 @@ export default function Player() {
              <Image source={{ uri: currentTrack?.artwork }} style={styles.artwork} />
           <View style={styles.trackInfo}>
             <Text style={styles.title}>{currentTrack?.title || 'Unknown Title'}</Text>
-            <Text style={styles.artist}>{currentTrack?.artists|| 'Unknown Artist'}</Text>
+            <Text style={styles.artist}>{currentTrack?.artist|| 'Unknown Artist'}</Text>
           </View>
           <View style={styles.controls}>
             <TouchableOpacity onPress={skipToPrevious}>
-              <Ionicons name="play-skip-back" size={30} color="white" />
+              <Ionicons name="play-skip-back" size={30} color="yellow" />
             </TouchableOpacity>
             <TouchableOpacity onPress={togglePlayPause}>
-              {isBuffering?<BufferingIcon/>:<Ionicons name={isPlaying ? 'pause-circle' : 'play-circle'} size={50} color="white" />}
+              {isBuffering?<BufferingIcon/>:<Ionicons name={isPlaying ? 'pause-circle' : 'play-circle'} size={50} color="yellow" />}
             </TouchableOpacity>
             <TouchableOpacity onPress={skipToNext}>
-              <Ionicons name="play-skip-forward" size={30} color="white" />
+              <Ionicons name="play-skip-forward" size={30} color="yellow" />
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
@@ -103,12 +102,12 @@ export default function Player() {
 
           <View style={styles.fullScreenContainer}>
             <TouchableOpacity onPress={toggleFullScreen} style={styles.closeButton}>
-              <Ionicons name="close" size={30} color="white" />
+              <Ionicons name="close" size={30} color="yellow" />
             </TouchableOpacity>
 
-            <Image source={{ uri: currentTrack?.artwork }} style={styles.artwork} />
+            <Image source={{ uri: currentTrack?.artwork }} style={styles.fullartwork} />
             <Text style={styles.fullTitle}>{currentTrack?.title || 'Unknown Title'}</Text>
-            <Text style={styles.fullArtist}>{currentTrack?.artists?.[0]?.name || 'Unknown Artist'}</Text>
+            <Text style={styles.artist}>Artists: {currentTrack?.artist|| 'Unknown Artist'}</Text>
 
             <Slider
               style={styles.slider}
@@ -116,9 +115,9 @@ export default function Player() {
               minimumValue={0}
               maximumValue={progress.duration}
               onSlidingComplete={handleSeek}
-              minimumTrackTintColor="white"
+              minimumTrackTintColor="yellow"
               maximumTrackTintColor="white"
-              thumbTintColor="#1DB954"
+              thumbTintColor="yellow"
             />
             <View style={styles.progressContainer}>
               <Text style={styles.time}>{new Date(progress.position * 1000).toISOString().substr(14, 5)}</Text>
@@ -129,28 +128,28 @@ export default function Player() {
 
             <View style={styles.fullControls}>
               <TouchableOpacity onPress={skipToPrevious}>
-                <Ionicons name="play-skip-back" size={40} color="white" />
+                <Ionicons name="play-skip-back" size={40} color="yellow" />
               </TouchableOpacity>
               <TouchableOpacity onPress={togglePlayPause}>
-              {isBuffering?<BufferingIcon/>:<Ionicons name={isPlaying ? 'pause-circle' : 'play-circle'} size={70} color="white" />}
+              {isBuffering?<BufferingIcon/>:<Ionicons name={isPlaying ? 'pause-circle' : 'play-circle'} size={70} color="yellow" />}
               </TouchableOpacity>
               <TouchableOpacity onPress={skipToNext}>
-                <Ionicons name="play-skip-forward" size={40} color="white" />
+                <Ionicons name="play-skip-forward" size={40} color="yellow" />
               </TouchableOpacity>
             </View>
             {/* Volume Slider */}
             {/* <Text style={styles.volumeLabel}>Volume</Text> */}
             <View style={styles.volumeSliderContainer}>
-              <Ionicons name='volume-high' size={30} color='white' />
+              <Ionicons name='volume-high' size={30} color='yellow' />
               <Slider
                 style={styles.volumeSlider}
                 value={volume}
                 minimumValue={0}
-                maximumValue={1}
+                maximumValue={0.7}
                 onValueChange={handleVolumeChange}
-                minimumTrackTintColor="#1DB954"
-                maximumTrackTintColor="#000000"
-                thumbTintColor="#1DB954"
+                minimumTrackTintColor="yellow"
+                maximumTrackTintColor="#B3B3B3"
+                thumbTintColor="yellow"
               />
 
 
@@ -182,9 +181,19 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
   },
+  fullartwork: {
+    width: 350,
+    height: 350,
+    borderRadius: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+  },
   artwork: {
-    width: 380,
-    height: 380,
+    width: 70,
+    height: 70,
     borderRadius: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -204,8 +213,10 @@ const styles = StyleSheet.create({
 
   },
   artist: {
-    color: 'white',
-    fontFamily: 'Outfit-Regular',
+    color: 'gray',
+    fontFamily: 'Outfit-Medium',
+
+    // textAlign:'center',
     fontSize: 14,
   },
   controls: {
@@ -277,7 +288,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   volumeSlider: {
-    width: '100%',
+    flex: 1,
+    marginHorizontal: 10,
   },
   volumeSliderContainer: {
     flexDirection: 'row',
