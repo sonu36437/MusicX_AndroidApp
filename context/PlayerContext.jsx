@@ -52,7 +52,7 @@ export const PlayerContextProvider = ({ children }) => {
       setCurrentSource(source)
       const formattedTracks = formatTracks(tracks);
       playerManagement.addSongsToQueue(formattedTracks, index);
-      playerManagement.setCurrentSong(playerManagement.particularIndexSong(index));
+      // playerManagement.setCurrentSong(playerManagement.particularIndexSong(index));
       setCurrentTrack(playerManagement.particularIndexSong(index));
       playerManagement.fetchSongAndPlay(playerManagement.particularIndexSong(index))
     }
@@ -60,6 +60,7 @@ export const PlayerContextProvider = ({ children }) => {
 
       setCurrentTrack(playerManagement.particularIndexSong(index));
       playerManagement.setCurrentSongIndex(index);
+      // playerManagement.setCurrentSong(playerManagement.particularIndexSong(index));
       playerManagement.fetchSongAndPlay(playerManagement.particularIndexSong(index));
 
     }
