@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { fetchTracks } from '../networkRequest/spotifyRequest';
 import TrackItem from '../components/TrackItem';
 import { usePlayerContext } from '../context/PlayerContext';
+import UserPlaylist from '../networkRequest/userPlayList'
 
 export default function Fav() {
   const [tracks, setTracks] = useState([]);
@@ -31,6 +32,8 @@ export default function Fav() {
 
   useEffect(() => {
     fetchData();
+    UserPlaylist.getUserPlaylist();
+    
   }, []);
 
   const loadMoreTracks = async () => {
@@ -69,6 +72,9 @@ export default function Fav() {
       <View style={styles.header}>
         <Text style={styles.title}>Liked Songs</Text>
       </View>
+
+      { isLoading&&<Text style={styles.loadingText}>Loading...</Text>}
+      
       {error && <Text style={styles.errorText}>Failed to fetch tracks</Text>}
       {tracks.length > 0 ? (
         <FlatList
@@ -77,10 +83,10 @@ export default function Fav() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           onEndReached={loadMoreTracks}
-          onEndReachedThreshold={0.5}
+          onEndReachedThreshold={0.6}
           ListFooterComponent={isLoading ? <Text style={styles.loadingText}>Loading...</Text> : null}
           refreshing={refreshing} 
-          onRefresh={handleRefresh} 
+          onRefresh={handleRefresh}
         />
       ) : (
         <>
@@ -98,21 +104,27 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: '30%',
+    // paddingBottom: '30%',
     borderTopRightRadius: 5,
     borderTopLeftRadius: 5,
   },
   header: {
-    paddingTop: 10,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'black',
+    zIndex: 999,
+    paddingHorizontal: 20,
+    paddingTop: 20,
     paddingBottom: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
   },
   title: {
     fontSize: 26,
     fontFamily: 'Outfit-Bold',
     color: '#fff',
-    marginBottom: 20,
+    paddingBottom:10,
+    // marginBottom: 20,
   },
   errorText: {
     color: 'red',
@@ -120,7 +132,8 @@ const styles = StyleSheet.create({
     fontFamily: 'Outfit-Bold',
   },
   listContent: {
-    paddingBottom: 10,
+    paddingTop: 70,
+    paddingBottom: 150,
   },
   loadingText: {
     fontFamily: 'Outfit-Bold',

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Modal } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Modal, Animated } from 'react-native';
 import TrackPlayer, { usePlaybackState, useProgress,Event } from 'react-native-track-player';
 import Slider from '@react-native-community/slider';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { usePlayerContext } from '../context/PlayerContext';
 import BufferingIcon from './BufferingIcon';
 
-export default function Player() {
-  const {  skipToNext, skipToPrevious, isBuffering, setIsBuffering } = usePlayerContext();
+export default function Player({TrackDetail}) {
+  const {  skipToNext, skipToPrevious, isBuffering, setIsBuffering,currentSource } = usePlayerContext();
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack,setCurrentTrack]=useState(null);
   const playbackState = usePlaybackState();
@@ -16,23 +16,44 @@ export default function Player() {
   const [showFullScreen, setShowFullScreen] = useState(false);
   const [volume, setVolume] = useState(0.5);
 
+  const slideAnim = React.useRef(new Animated.Value(200)).current;
+
   useEffect(() => {
     console.log("Player component mounted");
-
-    // Set up the event listener
-    const listener = TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, async (event) => {
-      if (event.track) {
+  console.log(TrackDetail);
+  if(TrackDetail){
+    setCurrentTrack(TrackDetail);
+  }
   
-        setCurrentTrack(event.track);
+    // Set up the event listener
+    const listener = TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged || Event.PlaybackState, async (event) => {
+      if (event.track) {
+        
+  
+        setCurrentTrack(event.track
+        );
       }
     });
+    
+
+    
    
 
 
-    // Clean up the event listener when the component unmounts
+   
     return () => {
       listener.remove();
+      console.log("player unmounted")
     };
+  }, []);
+
+  useEffect(() => {
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 500,
+      delay: 200,
+      useNativeDriver: true,
+    }).start();
   }, []);
 
   const togglePlayPause = async () => {
@@ -55,12 +76,12 @@ export default function Player() {
   }, [playbackState]);
 
 
-  // Seek functionality to move the track position
+
   const handleSeek = async (value) => {
     await TrackPlayer.seekTo(value);
   };
   
-  // Adjust volume
+
   const handleVolumeChange = async (value) => {
     setVolume(value);
     await TrackPlayer.setVolume(value);
@@ -75,11 +96,21 @@ export default function Player() {
       {/* {console.log(currentTrack)} */}
 
       {currentTrack && !showFullScreen && (
-        <TouchableOpacity style={styles.container} onPress={toggleFullScreen}> 
+        <Animated.View
+          style={[
+            styles.container,
+            {
+              transform: [{
+                translateY: slideAnim
+              }]
+            }
+          ]}
+        >
+          <TouchableOpacity style={styles.innerContainer} onPress={toggleFullScreen}> 
              <Image source={{ uri: currentTrack?.artwork }} style={styles.artwork} />
           <View style={styles.trackInfo}>
-            <Text style={styles.title}>{currentTrack?.title || 'Unknown Title'}</Text>
-            <Text style={styles.artist}>{currentTrack?.artist|| 'Unknown Artist'}</Text>
+            <Text style={styles.title} numberOfLines={1}>{currentTrack?.title || 'Unknown Title'}</Text>
+            <Text style={styles.artist} numberOfLines={1}>{currentTrack?.artist|| 'Unknown Artist'}</Text>
           </View>
           <View style={styles.controls}>
             <TouchableOpacity onPress={skipToPrevious}>
@@ -93,6 +124,7 @@ export default function Player() {
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
+        </Animated.View>
       )}
 
       {/* Full-Screen Player */}
@@ -101,7 +133,9 @@ export default function Player() {
         <Modal visible={showFullScreen} animationType="slide" transparent={true}>
 
           <View style={styles.fullScreenContainer}>
+            <Text style={{fontFamily:'Outfit-Medium', color:'black', position:'absolute', top:20,fontSize:12,backgroundColor:'white',padding:10,borderRadius:50}} numberOfLines={2}> Playing from {currentSource}</Text>
             <TouchableOpacity onPress={toggleFullScreen} style={styles.closeButton}>
+              
               <Ionicons name="close" size={30} color="yellow" />
             </TouchableOpacity>
 
@@ -163,40 +197,41 @@ export default function Player() {
 }
 
 const styles = StyleSheet.create({
-  // Compact player styles
   container: {
+    position: 'absolute',
+    bottom: 65,
+    width: '100%',
+  },
+  innerContainer: {
     backgroundColor: 'black',
     flexDirection: 'row',
-    borderRadius: 25,
+    borderTopColor: 'yellow',
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 10,
-    position: 'absolute',
-    bottom: '8%',
-    width: '100%',
-    shadowColor: 'grey',
-
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5,
+    shadowColor: 'yellow',
+    shadowOpacity: 0.4,
+    shadowOffset: {width: 10, height: -40},
+    shadowRadius: 70,
+    elevation: 20,
   },
   fullartwork: {
     width: 350,
     height: 350,
     borderRadius: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
+    shadowColor: 'red',
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 1,
     shadowRadius: 4,
     elevation: 4,
   },
   artwork: {
-    width: 70,
-    height: 70,
+    width: 60,
+    height: 60,
     borderRadius: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 14, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 4,

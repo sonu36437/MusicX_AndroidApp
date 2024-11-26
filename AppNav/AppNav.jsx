@@ -9,12 +9,14 @@ import { useAuth } from '../context/AuthContext';
 import Loading from '../components/Loading'; 
 import { PlayerContextProvider } from '../context/PlayerContext';
 import Player from '../components/Player';
+import TrackPlayer, { usePlaybackState, useProgress,Event } from 'react-native-track-player';
 
 const Stack = createNativeStackNavigator();
 
 export default function AppNav() {
   const { authToken } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
+  const [playingTrack,setPlayingTrack]=useState(null);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -26,6 +28,20 @@ export default function AppNav() {
 
     checkAuthStatus();
   }, [authToken]);
+
+  useEffect(() => {
+   async function getActive(){
+      const res= await TrackPlayer.getActiveTrack();
+      console.log(res);
+      
+     if(res){
+      setPlayingTrack(res);
+     }
+      
+   }
+   getActive();
+  
+  }, []);
 
   if (isLoading) {
     return <Loading />; 
@@ -53,7 +69,7 @@ export default function AppNav() {
           </>
         )}
       </Stack.Navigator>
-  {   authToken &&   <Player/>}
+  {   authToken && <Player TrackDetail={playingTrack}/>}
       </View>
  
     </NavigationContainer>

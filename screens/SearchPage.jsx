@@ -15,6 +15,13 @@ export default function SearchPage() {
   const [error, setError] = useState(null);
   const { addToQueue,queue } = usePlayerContext();
   const [searchId,setSearchId]=useState();
+  useEffect(()=>{
+    console.log("search page mounted");
+    return ()=>{
+      console.log("search page unmounted");
+    }
+
+  },[])
 
   useEffect(() => {
     if (input.length > 0) {
@@ -46,7 +53,7 @@ export default function SearchPage() {
 
   const handleSongClick = (index) => {
     // Add to queue
-    console.log(tracks);
+
     addToQueue(tracks, index,`search${searchId}`);
   };
 
@@ -70,11 +77,14 @@ export default function SearchPage() {
       </View>
       {loading && <Loading />}
       {error && <Text style={styles.error}>{error}</Text>}
-      {tracks.length > 0 && <Text style={styles.songsTitle}>Songs</Text>}
+    
       <FlatList
         data={tracks}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
+        ListHeaderComponent={tracks.length > 0 && <Text style={styles.songsTitle}>Songs</Text>}
+        ListFooterComponent={tracks.length>0 &&<View style={{backgroundColor:'white' ,width:100, height:30}}><Text>Load more</Text></View>}
+      
         contentContainerStyle={styles.listContent}
         style={{ marginTop: 20 }}
       />
@@ -124,8 +134,9 @@ const styles = StyleSheet.create({
     fontFamily: "Outfit-Bold",
     fontSize: 25,
     marginTop: 30,
+    paddingBottom:20
   },
   listContent: {
-    paddingBottom: 20,
+    paddingBottom: 100,
   },
 });

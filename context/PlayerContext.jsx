@@ -87,6 +87,7 @@ export const PlayerContextProvider = ({ children }) => {
       currentTrack,
       isBuffering,
       setIsBuffering,
+      currentSource,
       addToQueue,
       skipToNext,
       skipToPrevious,

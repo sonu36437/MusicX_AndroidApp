@@ -1,13 +1,15 @@
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import React from 'react';
+import musicIcon from '../assets/images/musicIcon.jpg';
 
 export default function TrackItem({ track, index, addToQueue }) {
   return (
     <TouchableOpacity onPress={addToQueue}>
-      <View style={styles.card}>
+      <View style={styles.card}>  
         <Image
-          source={{ uri: track.album.images[0]?.url }}
+         source={{uri: track.album.images[0]?.url||'https://i.pinimg.com/736x/43/88/40/438840ca10593324de82e90e29218f2d.jpg'}}
+
           style={styles.albumArt}
         />
         <View style={styles.trackInfo}>

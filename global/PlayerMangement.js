@@ -6,7 +6,9 @@ import { loadMore } from "../networkRequest/loadMore";
 class PlayerManagement {
     constructor() {
         this.queue = new SongQueue();
+        this.playingFrom="";
         this.fetchMoreUrl="";
+        this.playerReady=false;
         console.log("PlayerManagement constructor called");
     }
     
@@ -30,6 +32,9 @@ class PlayerManagement {
    }
 
     async setupPlayer() {
+        if(this.playerReady) {
+            console.log("player is already setuppp done"); return ;
+        };
         try {
             await TrackPlayer.setupPlayer({
                 autoHandleInterruptions: true,
@@ -56,6 +61,7 @@ class PlayerManagement {
                
             });
             console.log("Player setup complete");
+            this.playerReady=true;
         } catch (error) {
             console.error("Error setting up TrackPlayer:", error);
             // You might want to handle the error further, depending on your app's needs

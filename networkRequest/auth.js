@@ -45,7 +45,7 @@ export const getAuthToken = async () => {
 
       return await getAccessToken();
     }
-  console.log("token not expired prevouesly");
+    console.log("token not expired prevouesly");
     return accessToken;
   } else {
     console.log("first time token");
