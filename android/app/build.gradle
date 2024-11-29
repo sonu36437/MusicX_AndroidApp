@@ -73,7 +73,11 @@ def enableProguardInReleaseBuilds = false
  */
  //i have comment it to just check ;
  apply from: file("../../node_modules/react-native-vector-icons/fonts.gradle")
+<<<<<<< HEAD
 // apply from :file("../../assets/fonts")
+=======
+
+>>>>>>> MusicX_alpha2
 def jscFlavor = 'org.webkit:android-jsc:+'
 
 
