@@ -11,7 +11,7 @@ export default function SearchPage() {
   const [input, setInput] = useState("");
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [nextPageUrl,setNextPageUrl]=useState();
+  const [nextPageUrl,setNextPageUrl]=useState(null);
   const [error, setError] = useState(null);
   const { addToQueue,queue } = usePlayerContext();
   const [searchId,setSearchId]=useState();

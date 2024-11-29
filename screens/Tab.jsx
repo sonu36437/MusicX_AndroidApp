@@ -26,45 +26,56 @@ export default function MyTabs() {
           return (
             <Ionicons
               name={iconName}
-              size={size + 8}
+              size={size + 4}
               color={color}
               style={{
-                textAlign:'center',
-                justifyContent:'center',
-                width:90,
-              
-                borderWidth: focused ? 2 : 0, 
-                // backgroundColor: focused ? 'grey' : 'transparent', 
-                borderRadius: 50, 
-                padding:5
-            
+                textAlign: 'center',
+                justifyContent: 'center',
+                width: 50,
+               
                 
+                borderColor: '#7C4DFF',
+                borderRadius: 25,
+              
+                backgroundColor: focused ? 'rgba(124, 233, 255, 0.1)' : 'transparent',
+                transform: [{ scale: focused ? 1.1 : 1 }],
               }}
             />
           );
         },
         tabBarActiveTintColor: 'yellow',
-        tabBarInactiveTintColor: 'white',
+        tabBarInactiveTintColor: '#94A3B8',
         tabBarStyle: {
-          height: 60,
+          height: 65,
           backgroundColor: 'black',
           position: 'absolute',
-          borderTopRightRadius: 5,
-          borderTopLeftRadius: 5,
+          borderTopRightRadius: 20,
+          borderTopLeftRadius: 20,
           bottom: 0,
           left: 0,
+          
           right: 0,
-          borderTopWidth: 0, // Remove the horizontal line
-          transition: 'height 1s ease-in-out', 
+          borderTopWidth: 0,
+          elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: {
+            width: 0,
+            height: -4,
+          },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontFamily: 'Outfit-Medium',
           textAlign: 'center',
-          paddingBottom: 5,
+          marginBottom: 5,
+          fontWeight: '600',
         },
         tabBarIconStyle: {
-          // marginTop: 10,
+          position: 'relative',
+          top: 0,
+          marginTop: 5,
         },
       })}
     >

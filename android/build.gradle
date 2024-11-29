@@ -15,7 +15,12 @@ buildscript {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+        // classpath 'com.android.tools.lint:lint-gradle:34.0.0'
+        // classpath 'com.android.tools.build:gradle:8.1.0'
     }
+ 
 }
 
+
 apply plugin: "com.facebook.react.rootproject"
+

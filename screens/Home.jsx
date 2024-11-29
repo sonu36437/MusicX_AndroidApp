@@ -1,13 +1,25 @@
+import 'react-native-gesture-handler'
 import { View, Text, TouchableOpacity } from 'react-native';
+
 import React, { useEffect, useState } from 'react';
 import { getAuthToken } from '../networkRequest/auth';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../context/AuthContext';
 import BufferingIcon from '../components/BufferingIcon';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import Login from './Login';
+import { NavigationContainer } from '@react-navigation/native';
+
+export function Check(){
+  return(
+    <Text>myText</Text>
+  )
+}
 
 export default function Home() {
   const [token, setToken] = useState('');
   const { logOut } = useAuth();
+  const Drawer = createDrawerNavigator();
   
 
   useEffect(() => {
@@ -25,17 +37,41 @@ export default function Home() {
   }, []); 
 
   return (
-    <View style={{backgroundColor:'black', flex:1,}}>
-      <Text style={{fontFamily:'Outfit-Bold'}}>{token ? `Token: ${token}` : 'Fetching token...'}</Text>
-      <BufferingIcon/>
-  <Text>  <Icon name="home-outline" size={30} color="#900" /></Text>
 
+      <Drawer.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: 'black',
+          
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+          
+            fontFamily:'Outfit-Bold',
+            color:'white'
+          },
+        }}
+      >
+        <Drawer.Screen 
+          name="HomeScreen" 
+          component={HomeContent}
+          options={{
+            title: 'Home',
+          
+          
+           
+          }}
+        />
+      </Drawer.Navigator>
+   
+  );
+}
 
-  <TouchableOpacity onPress={()=>{
-    logOut();
-  }}>
-    <View style={{backgroundColor:'white' ,color:'black'}}><Text>Logout</Text></View>
-  </TouchableOpacity>
+function HomeContent() {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center',backgroundColor:'black' }}>
+      <Text style={{ fontSize: 24,fontFamily:'Outfit-Medium',color:'white' }}>Welcome to the Home Screen!</Text>
+     
     </View>
   );
 }

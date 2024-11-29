@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import playerManagement from '../global/PlayerMangement';
 import TrackPlayer from 'react-native-track-player';
+import { AppState } from 'react-native';
 
 export const PlayerContext = createContext();
 
@@ -9,15 +10,37 @@ export const PlayerContextProvider = ({ children }) => {
   const [isBuffering, setIsBuffering] = useState(true);
   const [currentSource, setCurrentSource] = useState(null);
   const isAlredySetup = useRef(false);
+  const appState = useRef(AppState.currentState);
 
   useEffect(() => {
-   if(isAlredySetup.current){console.log("already setup"); return;}
-    playerManagement.setupPlayer().then(()=>{
-      isAlredySetup.current = true;
-    });
-     
+    const setupAndHandleAppState = async () => {
+      if (!isAlredySetup.current) {
+        try {
+          await playerManagement.setupPlayer();
+          isAlredySetup.current = true;
+        } catch (error) {
+          console.log('Error setting up player:', error);
+        }
+      }
+    };
 
+    const subscription = AppState.addEventListener('change', async (nextAppState) => {
+      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        // App came to foreground
+        if (!isAlredySetup.current) {
+          await setupAndHandleAppState();
+        }
+      }
+      appState.current = nextAppState;
+    });
+
+    setupAndHandleAppState();
+
+    return () => {
+      subscription.remove();
+    };
   }, []);
+
   const formatTracks = (tracks) => {
     return tracks.map((track) => {
       return {
