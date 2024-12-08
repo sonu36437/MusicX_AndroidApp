@@ -10,6 +10,8 @@ import Loading from '../components/Loading';
 import { PlayerContextProvider } from '../context/PlayerContext';
 import Player from '../components/Player';
 import TrackPlayer, { usePlaybackState, useProgress,Event } from 'react-native-track-player';
+import PopUp from '../components/PopUp';
+import{PopupContextProvider} from '../context/PopupContext'
 
 const Stack = createNativeStackNavigator();
 
@@ -48,6 +50,7 @@ export default function AppNav() {
   }
 
   return (
+    <PopupContextProvider>
     <PlayerContextProvider>
     <NavigationContainer>
     <View style={{ flex: 1 }}>
@@ -71,8 +74,12 @@ export default function AppNav() {
       </Stack.Navigator>
   {   authToken && <Player TrackDetail={playingTrack}/>}
       </View>
+      <PopUp />
  
     </NavigationContainer>
      </PlayerContextProvider>
+     </PopupContextProvider>
+ 
+    
   );
 }
