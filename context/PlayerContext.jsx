@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect, useRef } from 'r
 import playerManagement from '../global/PlayerMangement';
 import TrackPlayer from 'react-native-track-player';
 import { AppState } from 'react-native';
+import SongQueue from '../global/Queue';
+import { play } from 'react-native-track-player/lib/src/trackPlayer';
 
 export const PlayerContext = createContext();
 
@@ -24,21 +26,11 @@ export const PlayerContextProvider = ({ children }) => {
       }
     };
 
-    const subscription = AppState.addEventListener('change', async (nextAppState) => {
-      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
-        // App came to foreground
-        if (!isAlredySetup.current) {
-          await setupAndHandleAppState();
-        }
-      }
-      appState.current = nextAppState;
-    });
+ 
 
     setupAndHandleAppState();
 
-    return () => {
-      subscription.remove();
-    };
+  
   }, []);
 
   const formatTracks = (tracks) => {
@@ -57,10 +49,25 @@ export const PlayerContextProvider = ({ children }) => {
   }
 
   const addToQueue = (tracks, index, source,nextPageBaseUrl=null) => {
-    // playerManagement.addSongsToQueue(tracks);
-    // playerManagement.setCurrentSong(tracks[index]);
-    // setCurrentTrack(tracks[index]);
-    // console.log(playerManagement.getCurrentSong());
+     const src=String(source);
+     const regex=/search/ig
+     const result=regex.test(src);
+      if(result){
+    const formattedTracks=formatTracks(tracks);
+      playerManagement.playSingle(formattedTracks[index])
+      playerManagement.playingFrom=src.match(regex)[0];
+  
+      
+      
+        return ;
+      }
+  
+  
+  
+    
+
+    
+
 
     // playerManagement.fetchSongAndPlay(tracks[index]);
     const queueLength = playerManagement.getQueueLength();
@@ -74,6 +81,7 @@ export const PlayerContextProvider = ({ children }) => {
       console.log("adding songs to queue");
       setCurrentSource(source)
       const formattedTracks = formatTracks(tracks);
+      playerManagement.playingFrom=source;
       playerManagement.addSongsToQueue(formattedTracks, index);
       playerManagement.setCurrentSong(playerManagement.particularIndexSong(index));
       setCurrentTrack(playerManagement.particularIndexSong(index));

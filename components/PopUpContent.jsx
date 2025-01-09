@@ -1,11 +1,13 @@
 import { View, Text, Image, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback ,useContext} from 'react';
 import { addToLikedList, fetchTracks, removeFromLikedList } from '../networkRequest/spotifyRequest';
+import { useNavigation } from '@react-navigation/native';
+import { PopupContext } from '../context/PopupContext';
 
 const FavoriteButton = ({ isLiked, onPress, checkIsLiked }) => (
   <TouchableOpacity onPress={onPress}>
     <View style={{ marginTop: 10, alignItems: 'center', backgroundColor: 'white', padding: 10, borderRadius: 10 }}>
-      <Text style={{ fontFamily: 'Outfit-Bold', fontSize: 14, color: isLiked ? 'rgba(255,0,0,0.8)' : 'green' }} numberOfLines={1}>
+      <Text style={{ fontFamily: 'Outfit-Bold', fontSize: 14, color: isLiked ? 'rgb(255, 0, 0)' : 'rgb(0, 150, 0)' }} numberOfLines={1}>
         { checkIsLiked ? '.....' : (isLiked ? 'Remove from Favourites' : 'Add to Favourites') }
       </Text>
     </View>
@@ -15,6 +17,8 @@ const FavoriteButton = ({ isLiked, onPress, checkIsLiked }) => (
 export default function PopUpContent({ content }) {
   const [isLiked, setIsLiked] = useState(false);
   const [checkIsLiked,setCheckLiked]=useState(false);
+  const {setPopup} = useContext(PopupContext);
+  const navigation = useNavigation();
 
   const isliked = useCallback(async () => {
     setCheckLiked(true);
@@ -33,16 +37,14 @@ export default function PopUpContent({ content }) {
     const res= await addToLikedList(content.id);
     console.log(res);
     setIsLiked(true);
-    Alert.alert("added to liked list")
+
     return;
   }
   else{
-    // console.log("removeing");return;
-    
        const res=await removeFromLikedList(content.id);
+      
        setIsLiked(false);
        console.log("removed");
-       
        return;
   }
 
@@ -58,10 +60,12 @@ export default function PopUpContent({ content }) {
   return (
     <View>
       <View style={{ justifyContent: 'center', alignItems: 'center', padding: 0, margin: 0 }}>
+        <View style={styles.imageStyle}>
         <Image
           source={{ uri: `${content.image}` }}
-          style={[{ width: 80, height: 80, borderRadius: 10 }, styles.imageStyle]}
-        />
+          style={[{ width: 80, height: 80, borderRadius: 10 }]}
+        /></View>
+        
       </View>
       <View style={styles.titleStyle}>
         <Text style={{ fontFamily: 'Outfit-Bold', fontSize: 20, color: 'white' }} numberOfLines={3}>
@@ -69,41 +73,52 @@ export default function PopUpContent({ content }) {
         </Text>
       </View>
       <View style={{ marginTop: 0, alignItems: 'center' }}>
-        <Text style={{ fontFamily: 'Outfit-Medium', fontSize: 14, color: 'rgba(255,255,255,0.7)' }} numberOfLine={2}>
+        <Text style={{ fontFamily: 'Outfit-Medium', fontSize: 14, color: 'white' }} numberOfLine={2}>
           {content.artist}
         </Text>
       </View>
       <FavoriteButton isLiked={isLiked} onPress={handleSongStatus} checkIsLiked={checkIsLiked} />
+      <TouchableOpacity onPress={()=>{
+        setPopup(false);
+        navigation.navigate('ComingSoon')
+
+      }}>
       <View style={{ marginTop: 10, alignItems: 'center', backgroundColor: 'white', padding: 10, borderRadius: 10 }}>
         <Text style={{ fontFamily: 'Outfit-Medium', fontSize: 14, color: 'black' }} numberOfLines={1}>
           Add To Playlist
         </Text>
+
       </View>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={()=>{
+          setPopup(false);
+        navigation.navigate('ComingSoon')
+      }}>
       <View style={{ marginTop: 10, alignItems: 'center', backgroundColor: 'white', padding: 10, borderRadius: 10 }}>
         <Text style={{ fontFamily: 'Outfit-Medium', fontSize: 14, color: 'black' }} numberOfLines={1}>
           View more by Artist
         </Text>
       </View>
+      </TouchableOpacity>
     </View>
+  
   );
 }
 
 const styles = StyleSheet.create({
   imageStyle: {
     position: 'absolute',
-    borderTopColor: 'yellow',
     borderRadius: 20,
+    width:90,
+    height:90,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 10,
-    shadowColor: 'yellow',
-    shadowOpacity: 0.4,
-    shadowOffset: {width: 10, height: -40},
-    shadowRadius: 70,
+    shadowColor: 'white',
     elevation: 20,
+    
   },
   titleStyle: {
     marginTop: 50,
     alignItems: 'center',
+    color:'black',
   },
 });

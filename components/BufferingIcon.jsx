@@ -27,19 +27,14 @@ export default function BufferingIcon() {
   });
 
   return (
-    <View style={styles.container}>
+    <View >
       <Animated.View style={{ transform: [{ rotate }] }}>
-        <Ionicons name="sync" size={40} color="white" />
+        <Ionicons name="sync" size={30} color="white" />
       </Animated.View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
 
-   
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
 });

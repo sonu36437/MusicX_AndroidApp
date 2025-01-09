@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WebViewLogin from '../screens/WebViewLogin';
 import MyTabs from '../screens/Tab';
 import Login from '../screens/Login';
+import ComingSoon from '../screens/ComingSoon';
 import { useAuth } from '../context/AuthContext';
 import Loading from '../components/Loading'; 
 import { PlayerContextProvider } from '../context/PlayerContext';
@@ -51,35 +52,35 @@ export default function AppNav() {
 
   return (
     <PopupContextProvider>
-    <PlayerContextProvider>
-    <NavigationContainer>
-    <View style={{ flex: 1 }}>
-  
-   
-   
-      <Stack.Navigator>
-        {authToken ? (
-          <Stack.Screen 
-            name="Tabs" 
-            component={MyTabs} 
-            options={{ headerShown: false, headerStyle: { backgroundColor: 'red' } }} 
-          />
-        
-        ) : (
-          <>
-            <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
-            <Stack.Screen name="WebViewLogin" component={WebViewLogin} options={{ headerShown: false }} />
-          </>
-        )}
-      </Stack.Navigator>
-  {   authToken && <Player TrackDetail={playingTrack}/>}
-      </View>
-      <PopUp />
- 
-    </NavigationContainer>
-     </PlayerContextProvider>
-     </PopupContextProvider>
- 
-    
+      <PlayerContextProvider>
+        <NavigationContainer>
+          <View style={{ flex: 1 }}>
+            <Stack.Navigator>
+              {authToken ? (
+                <>
+                  <Stack.Screen 
+                    name="Tabs" 
+                    component={MyTabs} 
+                    options={{ headerShown: false, headerStyle: { backgroundColor: 'red' } }} 
+                  />
+                  <Stack.Screen 
+                    name="ComingSoon" 
+                    component={ComingSoon} 
+                    options={{ headerShown: false }}
+                  />
+                </>
+              ) : (
+                <>
+                  <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+                  <Stack.Screen name="WebViewLogin" component={WebViewLogin} options={{ headerShown: false }} />
+                </>
+              )}
+            </Stack.Navigator>
+            {authToken && <View><Player TrackDetail={playingTrack}/></View>}
+          </View>
+          <PopUp />
+        </NavigationContainer>
+      </PlayerContextProvider>
+    </PopupContextProvider>
   );
 }

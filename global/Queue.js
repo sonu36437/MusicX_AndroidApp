@@ -16,6 +16,7 @@ class SongQueue{
     addMoreSongs(songs){
         this.queue=[...this.queue,...songs]
     }
+
     clearQueue(){
         this.queue = [];
         this.currentIndex = -1;
@@ -23,6 +24,9 @@ class SongQueue{
     getCurrentSong(){
         return this.currentSong;
     }
+    // getTracksInQueue(){
+    //     return this.queue;
+    // }
     setCurrentSong(song){
         this.currentSong = song;
     }

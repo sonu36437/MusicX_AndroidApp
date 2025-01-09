@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet ,StatusBar} from 'react-native';
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AuthContextProvider } from './context/AuthContext';
@@ -14,7 +14,10 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   return (
     <AuthContextProvider>
+      <StatusBar backgroundColor="black" barStyle="light-content" />
+      <View style={{ flex:1,backgroundColor:"black"}}>
       <AppNav />
+      </View>
     </AuthContextProvider>
   );
 }

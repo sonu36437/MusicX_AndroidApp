@@ -3,16 +3,16 @@ import React, { useEffect, useState } from 'react';
 import { fetchTracks } from '../networkRequest/spotifyRequest';
 import TrackItem from '../components/TrackItem';
 import { usePlayerContext } from '../context/PlayerContext';
-import UserPlaylist from '../networkRequest/userPlayList'
+import UserPlaylist from '../networkRequest/userPlayList';
 
 export default function Fav() {
   const [tracks, setTracks] = useState([]);
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false); // Added state for refreshing
+  const [refreshing, setRefreshing] = useState(false);
   const [nextPageUrl, setNextPageUrl] = useState(null);
   const [hasMore, setHasMore] = useState(false);
-  const { addToQueue, addMoreSongsToQueue } = usePlayerContext();
+  const { addToQueue } = usePlayerContext();
 
   const fetchData = async () => {
     try {
@@ -21,9 +21,9 @@ export default function Fav() {
       const formattedTracks = data.items.map((item) => item.track);
       setTracks(formattedTracks);
       setNextPageUrl(data.next);
-      setHasMore(data.next);
+      setHasMore(!!data.next);
     } catch (err) {
-      console.log(err);
+      console.error('Error fetching tracks:', err);
       setError(true);
     } finally {
       setIsLoading(false);
@@ -32,8 +32,7 @@ export default function Fav() {
 
   useEffect(() => {
     fetchData();
-    UserPlaylist.getUserPlaylist();
-    
+    // UserPlaylist.getUserPlaylist();
   }, []);
 
   const loadMoreTracks = async () => {
@@ -44,9 +43,10 @@ export default function Fav() {
         const formattedTracks = data.items.map((item) => item.track);
         setTracks((prevTracks) => [...prevTracks, ...formattedTracks]);
         setNextPageUrl(data.next);
-        setHasMore(data.next);
+        setHasMore(!!data.next);
       } catch (err) {
-        setError('Failed to load more tracks');
+        console.error('Error loading more tracks:', err);
+        setError(true);
       } finally {
         setIsLoading(false);
       }
@@ -54,17 +54,21 @@ export default function Fav() {
   };
 
   const handleRefresh = async () => {
-    setRefreshing(true); 
-    await fetchData(); 
-    setRefreshing(false); 
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
   };
 
   const handleSongClick = (index) => {
-    addToQueue(tracks, index, 'fav'," https://api.spotify.com/v1/me/tracks?");
+    addToQueue(tracks, index, 'fav', 'https://api.spotify.com/v1/me/tracks?');
   };
 
   const renderItem = ({ item, index }) => (
-    <TrackItem track={item} index={index} addToQueue={() => handleSongClick(index)} />
+    <TrackItem
+      track={item}
+      index={index}
+      addToQueue={() => handleSongClick(index)}
+    />
   );
 
   return (
@@ -73,26 +77,32 @@ export default function Fav() {
         <Text style={styles.title}>Liked Songs</Text>
       </View>
 
-      { isLoading&&<Text style={styles.loadingText}>Loading...</Text>}
-      
-      {error && <Text style={styles.errorText}>Failed to fetch tracks</Text>}
+      {isLoading && !tracks.length && (
+        <Text style={styles.loadingText}>Loading...</Text>
+      )}
+
+      {error && (
+        <Text style={styles.errorText}>Failed to fetch tracks. Please try again.</Text>
+      )}
+
       {tracks.length > 0 ? (
         <FlatList
           data={tracks}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id || `${Math.random()}`}
           contentContainerStyle={styles.listContent}
           onEndReached={loadMoreTracks}
-          onEndReachedThreshold={0.6}
-          ListFooterComponent={isLoading ? <Text style={styles.loadingText}>Loading...</Text> : null}
-          refreshing={refreshing} 
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            isLoading ? <Text style={styles.loadingText}>Loading...</Text> : null
+          }
+          refreshing={refreshing}
           onRefresh={handleRefresh}
         />
       ) : (
-        <>
-          <Text style={styles.loadingText}>Loading...</Text>
-          {!isLoading && tracks.length <= 0 && <Text style={styles.loadingText}>No Liked Songs Found</Text>}
-        </>
+        isLoading && (
+          <Text style={styles.loadingText}>Loading......</Text>
+        )
       )}
     </View>
   );
@@ -104,7 +114,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
     paddingHorizontal: 20,
     paddingTop: 20,
-    // paddingBottom: '30%',
     borderTopRightRadius: 5,
     borderTopLeftRadius: 5,
   },
@@ -123,8 +132,7 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontFamily: 'Outfit-Bold',
     color: '#fff',
-    paddingBottom:10,
-    // marginBottom: 20,
+    paddingBottom: 10,
   },
   errorText: {
     color: 'red',
@@ -140,6 +148,6 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     fontSize: 20,
-    marginVertical: 20,
+    marginVertical: 10,
   },
 });

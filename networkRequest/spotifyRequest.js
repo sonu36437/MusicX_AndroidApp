@@ -11,6 +11,8 @@ export async function fetchTracks(url) {
                 Authorization: `Bearer ${accessToken}`,
             },
         });
+        // console.log(response.data.items.name);
+        
      
         return response.data; 
     } catch (e) {

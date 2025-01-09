@@ -1,59 +1,75 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Modal, Animated } from 'react-native';
-import TrackPlayer, { usePlaybackState, useProgress,Event } from 'react-native-track-player';
+import React, { useState, useEffect,useCallback } from 'react';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import useImageColors from '../assets/hooks/useColor';
+
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Modal,
+  Animated,
+  BackHandler
+} from 'react-native';
+import TrackPlayer, { usePlaybackState, useProgress, Event } from 'react-native-track-player';
 import Slider from '@react-native-community/slider';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import LinearGradient from 'react-native-linear-gradient';
 import { usePlayerContext } from '../context/PlayerContext';
-import BufferingIcon from './BufferingIcon';
 
-export default function Player({TrackDetail}) {
-  const {  skipToNext, skipToPrevious, isBuffering, setIsBuffering,currentSource } = usePlayerContext();
+
+export default function Player({ TrackDetail }) {
+  const { skipToNext, skipToPrevious, isBuffering, setIsBuffering, currentSource } = usePlayerContext();
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrack,setCurrentTrack]=useState(null);
+  const [currentTrack, setCurrentTrack] = useState(null);
   const playbackState = usePlaybackState();
+  const [color, setColors] = useState(null);
   const progress = useProgress();
+  const navigation= useNavigation();
+
 
   const [showFullScreen, setShowFullScreen] = useState(false);
-  const [volume, setVolume] = useState(0.5);
-
   const slideAnim = React.useRef(new Animated.Value(200)).current;
+  
+
+  useEffect(()=>{
+    const backPressHandler=BackHandler.addEventListener('hardwareBackPress',()=>{console.log("back Predded");
+      console.log("back Predded");
+      
+    })
+    return () => backPressHandler.remove();
+  },[showFullScreen])
+  
+
 
   useEffect(() => {
-    console.log("Player component mounted");
-  console.log(TrackDetail);
-  if(TrackDetail){
-    setCurrentTrack(TrackDetail);
-  }
+    if (TrackDetail) {
+      setCurrentTrack(TrackDetail);
+    }
   
-    // Set up the event listener
-    const listener = TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged || Event.PlaybackState, async (event) => {
+
+    const listener = TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, async (event) => {
       if (event.track) {
-        
-  
-        setCurrentTrack(event.track
-        );
+        setCurrentTrack(event.track);
+        console.log(event.track.artwork);
+
+
+
+       
       }
     });
-    
-
-    
-   
-
-
-   
-    return () => {
-      listener.remove();
-      console.log("player unmounted")
-    };
-  }, []);
-
-  useEffect(() => {
+      
+ 
+ 
     Animated.timing(slideAnim, {
       toValue: 0,
       duration: 500,
       delay: 200,
       useNativeDriver: true,
     }).start();
+
+    return () => listener.remove();
   }, []);
 
   const togglePlayPause = async () => {
@@ -65,7 +81,7 @@ export default function Player({TrackDetail}) {
   };
 
   useEffect(() => {
-    if (playbackState.state === "playing") {
+    if (playbackState.state === 'playing') {
       setIsPlaying(true);
       setIsBuffering(false);
     } else if (playbackState.state === 'buffering') {
@@ -75,16 +91,8 @@ export default function Player({TrackDetail}) {
     }
   }, [playbackState]);
 
-
-
   const handleSeek = async (value) => {
     await TrackPlayer.seekTo(value);
-  };
-  
-
-  const handleVolumeChange = async (value) => {
-    setVolume(value);
-    await TrackPlayer.setVolume(value);
   };
 
   const toggleFullScreen = () => {
@@ -93,103 +101,88 @@ export default function Player({TrackDetail}) {
 
   return (
     <>
-      {/* {console.log(currentTrack)} */}
-
       {currentTrack && !showFullScreen && (
         <Animated.View
           style={[
             styles.container,
             {
-              transform: [{
-                translateY: slideAnim
-              }]
-            }
+              transform: [{ translateY: slideAnim }],
+            },
           ]}
         >
-          <TouchableOpacity style={styles.innerContainer} onPress={toggleFullScreen}> 
-             <Image source={{ uri: currentTrack?.artwork }} style={styles.artwork} />
-          <View style={styles.trackInfo}>
-            <Text style={styles.title} numberOfLines={1}>{currentTrack?.title || 'Unknown Title'}</Text>
-            <Text style={styles.artist} numberOfLines={1}>{currentTrack?.artist|| 'Unknown Artist'}</Text>
-          </View>
-          <View style={styles.controls}>
-            <TouchableOpacity onPress={skipToPrevious}>
-              <Ionicons name="play-skip-back" size={30} color="yellow" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={togglePlayPause}>
-              {isBuffering?<BufferingIcon/>:<Ionicons name={isPlaying ? 'pause-circle' : 'play-circle'} size={50} color="yellow" />}
-            </TouchableOpacity>
-            <TouchableOpacity onPress={skipToNext}>
-              <Ionicons name="play-skip-forward" size={30} color="yellow" />
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.innerContainer} onPress={toggleFullScreen}>
+            <Image source={{ uri: currentTrack?.artwork }} style={styles.artwork} />
+            <View style={styles.trackInfo}>
+              <Text style={styles.title} numberOfLines={1}>
+                {currentTrack?.title || 'Unknown Title'}
+              </Text>
+              <Text style={styles.artist} numberOfLines={1}>
+                {currentTrack?.artist || 'Unknown Artist'}
+              </Text>
+            </View>
+            <View style={styles.controls}>
+              <TouchableOpacity onPress={togglePlayPause}>
+                <Ionicons
+                  name={isPlaying ? 'pause' : 'play'}
+                  size={25}
+                  color="black"
+                  style={styles.controlIcon}
+                />
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
         </Animated.View>
       )}
 
-      {/* Full-Screen Player */}
       {currentTrack && (
-
         <Modal visible={showFullScreen} animationType="slide" transparent={true}>
-
           <View style={styles.fullScreenContainer}>
-            <Text style={{fontFamily:'Outfit-Medium', color:'black', position:'absolute', top:20,fontSize:12,backgroundColor:'white',padding:10,borderRadius:50}} numberOfLines={2}> Playing from {currentSource}</Text>
+            <LinearGradient
+              colors={['rgb(178,200,42)', 'rgb(178, 255, 62)', 'rgba(178,200,200,0.9)']}
+              style={styles.fullScreenGradient}
+            />
             <TouchableOpacity onPress={toggleFullScreen} style={styles.closeButton}>
-              
-              <Ionicons name="close" size={30} color="yellow" />
+              <Ionicons name="chevron-down" size={50} color="black" />
             </TouchableOpacity>
-
-            <Image source={{ uri: currentTrack?.artwork }} style={styles.fullartwork} />
+            <Image source={{ uri: currentTrack?.artwork }} style={styles.fullArtwork} />
             <Text style={styles.fullTitle}>{currentTrack?.title || 'Unknown Title'}</Text>
-            <Text style={styles.artist}>Artists: {currentTrack?.artist|| 'Unknown Artist'}</Text>
-
+            <Text style={styles.fullArtist}>
+              {currentTrack?.artist || 'Unknown Artist'}
+            </Text>
             <Slider
               style={styles.slider}
               value={progress.position}
               minimumValue={0}
               maximumValue={progress.duration}
               onSlidingComplete={handleSeek}
-              minimumTrackTintColor="yellow"
-              maximumTrackTintColor="white"
-              thumbTintColor="yellow"
+              minimumTrackTintColor="black"
+              maximumTrackTintColor="#555"
+              thumbTintColor="black"
             />
             <View style={styles.progressContainer}>
-              <Text style={styles.time}>{new Date(progress.position * 1000).toISOString().substr(14, 5)}</Text>
-              <Text style={styles.time}>{new Date(progress.duration * 1000).toISOString().substr(14, 5)}</Text>
+              <Text style={styles.time}>
+                {new Date(progress.position * 1000).toISOString().substr(14, 5)}
+              </Text>
+              <Text style={styles.time}>
+                {new Date(progress.duration * 1000).toISOString().substr(14, 5)}
+              </Text>
             </View>
-
-
-
             <View style={styles.fullControls}>
               <TouchableOpacity onPress={skipToPrevious}>
-                <Ionicons name="play-skip-back" size={40} color="yellow" />
+                <Ionicons name="play-skip-back" size={50} color="black" />
               </TouchableOpacity>
               <TouchableOpacity onPress={togglePlayPause}>
-              {isBuffering?<BufferingIcon/>:<Ionicons name={isPlaying ? 'pause-circle' : 'play-circle'} size={70} color="yellow" />}
+                <Ionicons
+                  name={isPlaying ? 'pause-circle' : 'play-circle'}
+                  size={80}
+                  color="black"
+                />
               </TouchableOpacity>
               <TouchableOpacity onPress={skipToNext}>
-                <Ionicons name="play-skip-forward" size={40} color="yellow" />
+                <Ionicons name="play-skip-forward" size={50} color="black" />
               </TouchableOpacity>
             </View>
-            {/* Volume Slider */}
-            {/* <Text style={styles.volumeLabel}>Volume</Text> */}
-            <View style={styles.volumeSliderContainer}>
-              <Ionicons name='volume-high' size={30} color='yellow' />
-              <Slider
-                style={styles.volumeSlider}
-                value={volume}
-                minimumValue={0}
-                maximumValue={0.7}
-                onValueChange={handleVolumeChange}
-                minimumTrackTintColor="yellow"
-                maximumTrackTintColor="#B3B3B3"
-                thumbTintColor="yellow"
-              />
-
-
-            </View>
           </View>
-
         </Modal>
       )}
     </>
@@ -199,142 +192,107 @@ export default function Player({TrackDetail}) {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 65,
-    width: '100%',
+    left:10,
+    bottom: 68,
+    width: '95%',
+ 
+    backgroundColor: 'rgb(178, 255, 62)',
+    borderRadius:40
+
+
   },
   innerContainer: {
-    backgroundColor: 'black',
+    position:'relative',
     flexDirection: 'row',
-    borderTopColor: 'yellow',
-    borderRadius: 20,
     alignItems: 'center',
-    justifyContent: 'space-between',
     padding: 10,
-    shadowColor: 'yellow',
-    shadowOpacity: 0.4,
-    shadowOffset: {width: 10, height: -40},
-    shadowRadius: 70,
-    elevation: 20,
-  },
-  fullartwork: {
-    width: 350,
-    height: 350,
-    borderRadius: 5,
-    shadowColor: 'red',
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 1,
-    shadowRadius: 4,
-    elevation: 4,
+    shadowColor:'red',
+    elevation:20,
+
+
+ 
   },
   artwork: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
+
     borderRadius: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 14, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
+    marginLeft: 10,
   },
   trackInfo: {
     flex: 1,
     marginLeft: 10,
   },
   title: {
-    color: 'white',
-    fontFamily: 'Outfit-Bold',
-
-    fontSize: 16,
-
+    color: 'black',
+    fontSize: 13,
+    fontFamily:'Outfit-Bold'
   },
   artist: {
     color: 'gray',
-    fontFamily: 'Outfit-Medium',
-
-    // textAlign:'center',
-    fontSize: 14,
+    fontSize: 9,
+    fontFamily:'Outfit-Bold'
   },
   controls: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 7,
   },
-
-  // Full-screen player styles
+  controlIcon: {
+    padding: 5,
+  },
   fullScreenContainer: {
     flex: 1,
-    backgroundColor: 'black',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 20,
+    position:'absolute',
+    bottom:0,
+    height:'100%',
+    width:'100%',
+    backgroundColor: 'rgba(0,0,0,0.9)',
+  
   },
-  closeButton: {
+  fullScreenGradient: {
     position: 'absolute',
-
-    top: 40,
-    right: 20,
-    zIndex: 1,
+    width: '100%',
+    height: '100%',
   },
   fullArtwork: {
-    width: 300,
-    height: 300,
+    width: "98%",
+    height: '52%',
     borderRadius: 10,
     marginBottom: 20,
-
-    shadowColor: 'red',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 10,
   },
   fullTitle: {
-    fontSize: 24,
-    fontFamily: 'Outfit-Bold',
-    color: 'white',
+    fontSize: 20,
+    fontFamily:'Outfit-Bold',
+    color: 'black',
     textAlign: 'center',
   },
   fullArtist: {
-    fontSize: 18,
-    color: 'grey',
-    fontFamily: 'Outfit-Medium',
+    fontSize: 12,
+    color: 'gray',
+    fontFamily:'Outfit-Bold',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 20,
   },
   slider: {
-    width: '100%',
+    width: '90%',
     height: 40,
   },
   progressContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-
-    width: '100%',
+    width: '90%',
   },
   time: {
-    color: 'white',
-    fontFamily: 'Outfit-Medium',
-    fontSize: 14,
-  },
-  volumeLabel: {
-    marginTop: 20,
     color: 'black',
-    fontSize: 16,
-    fontWeight: 'bold',
-    alignSelf: 'center',
-  },
-  volumeSlider: {
-    flex: 1,
-    marginHorizontal: 10,
-  },
-  volumeSliderContainer: {
-    flexDirection: 'row',
-    position: 'absolute',
-    bottom: 50,
+    fontSize: 12,
+    fontFamily:'Outfit-Bold'
   },
   fullControls: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    width: '80%',
+    width: '70%',
     marginTop: 20,
   },
 });

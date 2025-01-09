@@ -4,6 +4,8 @@ import Home from './Home';
 import Fav from './Fav';
 import SearchPage from './SearchPage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import PlaylistStackNavigator from './Playlists';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -11,7 +13,10 @@ export default function MyTabs() {
   return (
     <Tab.Navigator
       backBehavior='firstRoute'
+      
       screenOptions={({ route }) => ({
+        popToTopOnBlur:true,
+        animation:'shift',
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
@@ -21,6 +26,9 @@ export default function MyTabs() {
             iconName = 'search';
           } else if (route.name === 'Fav') {
             iconName = 'heart';
+          }
+          else if(route.name==='playlists'){
+            iconName='list'
           }
 
           return (
@@ -43,7 +51,7 @@ export default function MyTabs() {
             />
           );
         },
-        tabBarActiveTintColor: 'yellow',
+        tabBarActiveTintColor: 'rgb(178, 255, 62)',
         tabBarInactiveTintColor: '#94A3B8',
         tabBarStyle: {
           height: 65,
@@ -94,6 +102,10 @@ export default function MyTabs() {
         component={Fav}
         options={{ headerShown: false }}
       />
+      <Tab.Screen
+        name="playlists"
+        component={PlaylistStackNavigator}
+        options={{ headerShown: false }}></Tab.Screen>
     </Tab.Navigator>
   );
 }

@@ -27,7 +27,7 @@ export default function TrackItem({ track, index, addToQueue }) {
       <TouchableOpacity onPress={addToQueue}>
         <View style={styles.card}>  
           <Image
-            source={{uri: track.album.images[0]?.url || 'https://i.pinimg.com/736x/43/88/40/438840ca10593324de82e90e29218f2d.jpg'}}
+            source={{uri: track?.album?.images[0]?.url || 'https://i.pinimg.com/736x/43/88/40/438840ca10593324de82e90e29218f2d.jpg'}}
             style={styles.albumArt}
           />
           <View style={styles.trackInfo}>
