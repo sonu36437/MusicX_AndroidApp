@@ -1,0 +1,35 @@
+import { View, Text, useWindowDimensions,Image } from 'react-native'
+import React, { useEffect, useMemo } from 'react'
+// import { Blur, BlurMask, Canvas, Circle, Group, Image, useImage } from "@shopify/react-native-skia";
+
+export default function Blurvw({imageUrl, blurAmount=80}) {
+    // Memoize the image URL to prevent unnecessary re-fetching
+    const memoizedImageUrl = useMemo(() => imageUrl || "https://i.scdn.co/image/ab67616d0000b273c1b12ad55c27bf87fce44489", [imageUrl]);
+ 
+    const { width, height } = useWindowDimensions();
+
+    useEffect(() => {
+        console.log('mounted');
+        return () => {
+      
+          
+            console.log('unmounted');
+        };
+    }, [memoizedImageUrl]);
+
+  
+   
+
+    return (
+        <View style={{ flex: 1 }}>
+            <Image 
+                source={{uri:memoizedImageUrl}}
+                width={width} 
+                height={height}
+                blurRadius={100}
+            >
+              
+            </Image>
+        </View>
+    )
+}

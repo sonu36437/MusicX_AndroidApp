@@ -1,18 +1,23 @@
+import axios from "axios";
 import { fetchTracks } from "./spotifyRequest";
 
 class HomeData{
 async getUserTopSongs(offset=0,limit=20){
   console.log("hleeow top songs");
   
-  const res=await fetchTracks(`https://api.spotify.com/v1/me/top/tracks`)
-  console.log(res);
+  // const res=await fetchTracks(`https://api.spotify.com/v1/me/top/tracks`)
+  // console.log(res);
+  const response = await axios("https://api.spotify.com/v1/me/top/tracks",{
+    
+  });
+
   
-  const data=res.items.map((ele)=>{
-    return ele.name;
+  // const data=res.items.map((ele)=>{
+  //   return ele.name;
     
 
-  })
-  return data;
+  // })
+  // return data;
 
  }
  async getNewTracks(){

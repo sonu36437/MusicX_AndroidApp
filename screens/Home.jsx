@@ -11,6 +11,8 @@ import Login from './Login';
 import { NavigationContainer } from '@react-navigation/native';
 import Homedata from '../networkRequest/HomeScreenData';
 import { Dimensions } from 'react-native';
+import Test from '../components/Blurvw';
+
 const {width,height}= Dimensions.get('window')
 
 
@@ -87,6 +89,9 @@ export default function Home() {
         <Text style={{color:'white', fontFamily:'Outfit-Medium', fontSize:18,padding:10}}>New Releases</Text>
        <NewSongList data={newTracks} />
        </View>
+       <Test/>
+   
+       
     
      
     </View>

@@ -4,7 +4,7 @@ const {width,height} = Dimensions.get('window')
 import React from 'react'
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
-const url="https://i.scdn.co/image/ab67616d0000b27308f098d9f446be13668e441d";
+// const url="https://i.scdn.co/image/ab67616d0000b27308f098d9f446be13668e441d";
 
 
 const GradientOverlay = () => {
