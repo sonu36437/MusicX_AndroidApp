@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback ,useContext} from 'react';
 import { addToLikedList, fetchTracks, removeFromLikedList } from '../networkRequest/spotifyRequest';
 import { useNavigation } from '@react-navigation/native';
 import { PopupContext } from '../context/PopupContext';
-import { checkIfDownloaded, downloadSong } from '../networkRequest/DownloadSongs';
+import { checkIfDownloaded, deleteDownloadedSong, downloadSong } from '../networkRequest/DownloadSongs';
 
 
 
@@ -75,8 +75,8 @@ export default function PopUpContent({ content }) {
     title: checkDownloaded?"remove form downloads":'Download',
     onPress: () => {
       // setPopup(false);
-      downloadSong(content);
-      // navigation.navigate('ComingSoon');
+    { !checkDownloaded? downloadSong(content):deleteDownloadedSong(content.id)}
+    setPopup(false);
 
     },
     textColor: 'black',

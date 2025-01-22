@@ -13,6 +13,7 @@ import Player from '../components/Player';
 import TrackPlayer, { usePlaybackState, useProgress,Event } from 'react-native-track-player';
 import PopUp from '../components/PopUp';
 import{PopupContextProvider} from '../context/PopupContext'
+import DownloadContextProvider from '../context/SongDownloadStatusContext';
 
 const Stack = createNativeStackNavigator();
 
@@ -53,6 +54,7 @@ export default function AppNav() {
   return (
     <PopupContextProvider>
       <PlayerContextProvider>
+        <DownloadContextProvider>
         <NavigationContainer>
           <View style={{ flex: 1 }}>
             <Stack.Navigator>
@@ -80,6 +82,7 @@ export default function AppNav() {
           </View>
           <PopUp />
         </NavigationContainer>
+        </DownloadContextProvider>
       </PlayerContextProvider>
     </PopupContextProvider>
   );
