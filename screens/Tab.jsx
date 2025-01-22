@@ -31,7 +31,7 @@ export default function MyTabs() {
           else if(route.name==='playlists'){
             iconName='list'
           }
-          else if(route.name==='downloads'){
+          else if(route.name==='Downloads'){
             iconName='cloud-download'
           }
           return (
@@ -110,9 +110,21 @@ export default function MyTabs() {
         component={PlaylistStackNavigator}
         options={{ headerShown: false }}></Tab.Screen>
         <Tab.Screen
-        name="downloads"
+        name="Downloads"
         component={Downloads}
-        options={{headerShown:true}}
+        options={{headerShown:true,
+          headerStyle:{
+            backgroundColor:'black',
+
+          },
+          headerTintColor:'white',
+          headerTitleStyle:{
+            fontFamily:'Outfit-Bold'
+          },
+          
+          
+          
+        }}
         />
     </Tab.Navigator>
   );

@@ -1,7 +1,9 @@
 import RNFS from 'react-native-fs';
 import { getSongSrc } from './songSrc';
-import { Alert } from 'react-native';
+import { Alert, ToastAndroid } from 'react-native';
+import notifee, { TimeUnit } from '@notifee/react-native';
 const downloadLocation=`${RNFS.DocumentDirectoryPath}/downloads`
+let currentDownloadId=null;
 
 
 async function isDirectoryExists(){
@@ -23,6 +25,7 @@ async function isDirectoryExists(){
         console.log("songid "+songDetails.id);
         
         await isDirectoryExists();
+        await notifee.requestPermission();
         
         const downloadDetails =songDetails.title +" "+ songDetails.artistArray[0].name;
         const response=  await getSongSrc(downloadDetails);
@@ -38,6 +41,7 @@ async function isDirectoryExists(){
         const songExists = await RNFS.exists(songFilePath);
         if (songExists) {
             console.log(`Song already exists: ${songFilePath}`);
+            ToastAndroid.show("song Already Downloaded",ToastAndroid.SHORT);
         
             return;
         }
@@ -48,12 +52,36 @@ async function isDirectoryExists(){
             progressDivider:10,
             begin:()=>{
                 console.log("download started");
+                currentDownloadId=songDownload.jobId;
                 
             },
-            progress:(res)=>{
-                const percentage=( (res.bytesWritten/res.contentLength)*100).toFixed(0);
-                console.log(percentage);
+            progress: async (res) => {
+                const percentage = ((res.bytesWritten/res.contentLength)*100).toFixed(0);
+                const downloadedMB = (res.bytesWritten / 1048576).toFixed(2);
+                const totalMB = (res.contentLength / 1048576).toFixed(2);
                 
+                // Create notification channel
+                const channelId = await notifee.createChannel({
+                    id: 'downloads',
+                    name: 'Downloads',
+                    importance: 4, // High importance
+                    vibration: true,
+                });
+
+                await notifee.displayNotification({
+                    id: songDetails.id,
+                    title: `Downloading: ${songDetails.title}`,
+                    body: `${downloadedMB}MB / ${totalMB}MB (${percentage}%)`,
+                    android: {
+                        channelId,
+                        ongoing: true,
+                        progress: {
+                            max: 100,
+                            current: parseInt(percentage),
+                        },
+                        smallIcon: '@mipmap/ic_launcher', 
+                    },
+                });
             }
           
 
@@ -61,12 +89,29 @@ async function isDirectoryExists(){
         const result= songDownload.promise;
         if((await result).statusCode!==200){
             console.log("failed to download");
-
-            
+            currentDownloadId=null;
+            await notifee.displayNotification({
+                id: songDetails.id,
+                title: 'Download Failed',
+                body: `Failed to download ${songDetails.title}`,
+                android: {
+                    channelId: 'downloads',
+                    smallIcon: 'ic_launcher',
+                },
+            });
         }
-        else{
+        else {
             console.log("download completed");
-            
+            await notifee.displayNotification({
+                id: songDetails.id,
+                title: 'Download Complete',
+                body: `Successfully downloaded ${songDetails.title}`,
+                android: {
+                    channelId: 'downloads',
+                    smallIcon: 'ic_launcher',
+                },
+            });
+            currentDownloadId=null;
         }
         console.log(`Downloading thumbnail for: ${songDetails.title}`);
         const thumbnailDownload = RNFS.downloadFile({
@@ -91,10 +136,20 @@ async function isDirectoryExists(){
         };
         await RNFS.writeFile(songMetaDataPath,JSON.stringify(metadata,null,2),'utf8');
         console.log("metadata saved:", metadata);
-        Alert.alert("Song downloaded successfully");
+    ToastAndroid.show("song Downloaded Successfully",ToastAndroid.SHORT)
 
     } catch (error) {
         console.error("Download failed:", error);
         Alert.alert("Download failed", error.message);
     }
+}
+
+export async function checkIfDownloaded(songId){
+    const songname= `${downloadLocation}/${songId}.mp4`
+    if(await RNFS.exists(songname)){
+        console.log("already donloaded");
+        
+        return true;
+    }
+return false;
 }

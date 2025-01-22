@@ -236,7 +236,7 @@ overflow:'hidden'
     flex: 1,
   },
   title: {
-    color: 'rgba(255,255,255,0.7)',
+    color: 'rgba(0,0,0,0.7)',
     fontSize: 14,
     fontFamily: 'Outfit-Bold',
   },

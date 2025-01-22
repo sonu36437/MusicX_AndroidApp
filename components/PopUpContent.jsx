@@ -3,13 +3,15 @@ import React, { useEffect, useState, useCallback ,useContext} from 'react';
 import { addToLikedList, fetchTracks, removeFromLikedList } from '../networkRequest/spotifyRequest';
 import { useNavigation } from '@react-navigation/native';
 import { PopupContext } from '../context/PopupContext';
-import { downloadSong } from '../networkRequest/DownloadSongs';
+import { checkIfDownloaded, downloadSong } from '../networkRequest/DownloadSongs';
 
 
 
 export default function PopUpContent({ content }) {
   const [isLiked, setIsLiked] = useState(false);
+  const [checkDownloaded,setcheckDownloaded]=useState(false);
   const [checkIsLiked, setCheckLiked] = useState(false);
+
   const {setPopup} = useContext(PopupContext);
   const navigation = useNavigation();
   const handleSongStatus=async()=>{
@@ -70,7 +72,7 @@ export default function PopUpContent({ content }) {
       fontFamily: 'Outfit-Medium'
     },
    { id:'download',
-    title: 'Download',
+    title: checkDownloaded?"remove form downloads":'Download',
     onPress: () => {
       // setPopup(false);
       downloadSong(content);
@@ -89,12 +91,19 @@ export default function PopUpContent({ content }) {
     setCheckLiked(false);
     setIsLiked(res[0]);
   }, [content.id]);
+  const isDownloaded =useCallback(async()=>{
+    console.log("lsdjflsdjfljsdofjsdjflsdjfljsdlfjsldjflsdjflsjdlfj");
+    
+    const res=await checkIfDownloaded(content.id);
+    setcheckDownloaded(res);
+  })
   
   
 
   useEffect(()=>{
-    console.log(content.id);
+
     isliked();
+   isDownloaded();
   },[content.id])
  
 

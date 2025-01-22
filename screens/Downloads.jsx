@@ -58,12 +58,17 @@ export default function Downloads() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Downloads</Text>
+   
       <FlatList
         data={downloadedSongs}
         renderItem={renderSongItem}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.listContainer}
+      
+        
+
+
+        
       />
     </View>
   )
@@ -72,7 +77,8 @@ export default function Downloads() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: 'black',
+  
   },
   header: {
     fontSize: 24,
@@ -81,6 +87,8 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   listContainer: {
-    padding: 16,
+    padding:20,
+  paddingBottom:150,
+
   },
 });
