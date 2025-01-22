@@ -16,6 +16,7 @@ export default function TrackItem({ track, index, addToQueue }) {
       image:track.album.images[0]?.url,
       title:track.name,
       artist:track.artists.map(artist => artist.name).join(', '),
+      artistArray:track.artists,
       id:track.id,
       
 
@@ -32,7 +33,7 @@ export default function TrackItem({ track, index, addToQueue }) {
           />
           <View style={styles.trackInfo}>
             <Text style={styles.trackName}>{track.name}</Text>
-            <Text style={styles.artists}>{track.artists.map(artist => artist.name).join(', ')}</Text>
+            <Text style={styles.artists}>{track.artists.map(artist => artist.name).join(', ')||track?.artist}</Text>
           </View>
           <TouchableOpacity style={styles.moreOptions} onPress={togglePopup}>
             <Ionicons name="ellipsis-horizontal" size={24} color="#fff" />

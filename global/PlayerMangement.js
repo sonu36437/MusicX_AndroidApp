@@ -2,7 +2,9 @@ import TrackPlayer, { Capability, Event } from "react-native-track-player";
 import SongQueue from './Queue'
 import { getSongSrc } from "../networkRequest/songSrc";
 import { loadMore } from "../networkRequest/loadMore";
+import RNFS from 'react-native-fs'
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Alert, LogBox } from "react-native";
 
 class PlayerManagement {
     constructor() {
@@ -12,12 +14,62 @@ class PlayerManagement {
         this.playerReady = false;
         console.log("PlayerManagement constructor called");
     }
-    
 
-    addSongsToQueue(songs, index) {
+
+    addSongsToQueue(songs, index) {// index is here which song is clicked
         console.log(this.fetchMoreUrl);
         this.queue.addSong(songs, index);
 
+    }
+    async fetchFromLocalIfAvilable(songid) {
+        console.log(songid);
+
+
+
+        try {
+            const downloadLocation = `${RNFS.DocumentDirectoryPath}/downloads`;
+            const files = await RNFS.readDir(downloadLocation);
+
+
+            const metadataFiles = files.filter(file => file.name.endsWith('_metadata.json'));
+
+
+
+
+            for (const metadataFile of metadataFiles) {
+                const metadata = await RNFS.readFile(metadataFile.path, 'utf8');
+                const parsedMetadata = JSON.parse(metadata);
+
+                if (parsedMetadata.id === songid) {
+
+
+                  
+                    const audioFileName = metadataFile.name.replace('_metadata.json', '.mp4');
+                    const audioFilePath = `${downloadLocation}/${audioFileName}`;
+                    console.log(audioFilePath);
+
+
+
+                    const exists = await RNFS.exists(audioFilePath);
+                    if (exists) {
+
+                   
+
+                        return {
+                            found: true,
+                            path: `file://${audioFilePath}`,
+
+                        };
+                    }
+                }
+            }
+
+            // Song not found locally
+            return { found: false };
+        } catch (error) {
+            console.error('Error checking local files:', error);
+            return { found: false, error };
+        }
     }
     async destroyPlayer() {
         await TrackPlayer.pause();
@@ -48,7 +100,7 @@ class PlayerManagement {
             });
 
             TrackPlayer.updateOptions({
-               
+
                 capabilities: [
                     Capability.Play,
                     Capability.Pause,
@@ -60,7 +112,7 @@ class PlayerManagement {
                 ],
                 color: 3,
 
-               
+
                 compactCapabilities: [Capability.Play, Capability.Pause, Capability.SkipToNext, Capability.SkipToPrevious],
 
 
@@ -69,37 +121,48 @@ class PlayerManagement {
             this.playerReady = true;
         } catch (error) {
             console.error("Error setting up TrackPlayer:", error);
-         
+
         }
     }
 
     async fetchSongAndPlay(song) {
+        //  console.log("songsdljf: "+ song.id);
+        const local = await this.fetchFromLocalIfAvilable(song.id)
+        console.log(local.path);
 
 
-        const songScr = await getSongSrc(song.title + " " + song.artists);
+
+
+
+
+
+
+
+
+        const songScr = local.found ? local.path : await getSongSrc(song.title + " " + song.artists);
         const track_with_url = {
-            ...song, url: songScr[songScr.length - 1].url
+            ...song, url: local.found ? songScr : songScr[songScr.length - 1].url
         }
         //here the array is present to create an array and save the in asyncStorage to 
         //user listning behevior and to recommend song
         //at most only 10 artist will be saved if exceed 10 and start removeing from the front 
-     
+
 
         await TrackPlayer.reset();
         await TrackPlayer.add(track_with_url);
         await TrackPlayer.play();
 
     }
-    async playSingle(song){
+    async playSingle(song) {
         this.fetchSongAndPlay(song);
 
     }
- 
+
 
     getCurrentSong() {
         return this.queue.getCurrentSong();
     }
-  
+
     setCurrentSong(song) {
         this.queue.setCurrentSong(song);
     }
@@ -107,17 +170,20 @@ class PlayerManagement {
         this.queue.currentIndex = index;
     }
     formatTracks = (tracksData) => {
+        console.log("trackData: "+trackData);
 
-        const tracks = tracksData.items ? tracksData.items.map(item => item.track) : tracksData.tracks.item;
+        const tracks = tracksData.items ? tracksData.items.map(item => item.track) : tracksData.tracks.item ||tracksData;
 
         return tracks.map((track) => {
 
             const trackData = track.track || track;
+       
+            
 
             return {
                 id: trackData.id,
-                title: trackData.name,
-                artist: trackData.artists?.map((artist) => artist.name).join(', ') || 'Unknown Artist',
+                title: trackData.name||trackData.title,
+                artist: trackData.artists?.map((artist) => artist.name).join(', ') || trackData.artist||'Unknown Artist',
                 artists: trackData.artists?.[0]?.name || 'Unknown Artist',
                 artwork: trackData.album?.images[0]?.url || '',
 
@@ -129,11 +195,11 @@ class PlayerManagement {
         const nextSong = this.queue.getNextSong();
         console.log(this.queue.getQueueLength())
         console.log(this.fetchMoreUrl);
-        if(this.queue.getQueueLength()<=0){
+        if (this.queue.getQueueLength() <= 0) {
             return;
         }
 
-        //https://api.spotify.com/v1/me/tracks?
+
 
         if (nextSong) {
             this.setCurrentSong(nextSong);

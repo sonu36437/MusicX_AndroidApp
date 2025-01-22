@@ -83,7 +83,7 @@ export default function PlayListSongs({ route }) {
         data={songs}
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
-        keyExtractor={(item) => item.id+`${Math.random()}`}
+        keyExtractor={(item) => item.id+`${item.index}`}
         ></FlatList>
         </View>
         </View>

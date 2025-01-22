@@ -34,13 +34,15 @@ export const PlayerContextProvider = ({ children }) => {
   }, []);
 
   const formatTracks = (tracks) => {
+    console.log("tracksDATa: ",tracks);
+    
     return tracks.map((track) => {
       return {
         id: track.id,
-        title: track.name,
-        artist: track?.artists.map((artist) => artist.name).join(', '),
-        artists: track.artists[0]?.name,
-        artwork: track.album.images[0]?.url,
+        title: track.name||track.title,
+        artist: track.artist||track?.artists.map((artist) => artist.name).join(', ')||'unknwon',
+        artists: track.artist||track.artists[0]?.name||'unknown',
+        artwork: track.thumbnailPath?`file://${track.thumbnailPath}` :track.album.images[0]?.url,
 
       }
     })

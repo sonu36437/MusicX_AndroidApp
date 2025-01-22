@@ -6,3 +6,5 @@ include ':app'
 include ':react-native-fs'
 project(':react-native-fs').projectDir = new File(settingsDir, '../node_modules/react-native-fs/android')
 includeBuild('../node_modules/@react-native/gradle-plugin')
+// include ':react-native-push-notification'
+// project(':react-native-push-notification').projectDir = file('../node_modules/react-native-push-notification/android')

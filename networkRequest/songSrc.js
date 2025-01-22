@@ -9,7 +9,7 @@ export const getSongSrc = async (query) => {
         console.log("Checking cache for key:", cacheKey);
         
         const cachedSong = await AsyncStorage.getItem(cacheKey);
-        console.log("Cache result:", cachedSong);
+        // console.log("Cache result:", cachedSong);
         
         if (cachedSong) {
             console.log("Found cached song data");

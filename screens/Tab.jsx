@@ -5,6 +5,7 @@ import Fav from './Fav';
 import SearchPage from './SearchPage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PlaylistStackNavigator from './Playlists';
+import Downloads from './Downloads';
 
 
 const Tab = createBottomTabNavigator();
@@ -30,7 +31,9 @@ export default function MyTabs() {
           else if(route.name==='playlists'){
             iconName='list'
           }
-
+          else if(route.name==='downloads'){
+            iconName='cloud-download'
+          }
           return (
             <Ionicons
               name={iconName}
@@ -106,6 +109,11 @@ export default function MyTabs() {
         name="playlists"
         component={PlaylistStackNavigator}
         options={{ headerShown: false }}></Tab.Screen>
+        <Tab.Screen
+        name="downloads"
+        component={Downloads}
+        options={{headerShown:true}}
+        />
     </Tab.Navigator>
   );
 }

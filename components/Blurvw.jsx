@@ -1,6 +1,6 @@
 import { View, Text, useWindowDimensions,Image } from 'react-native'
 import React, { useEffect, useMemo } from 'react'
-// import { Blur, BlurMask, Canvas, Circle, Group, Image, useImage } from "@shopify/react-native-skia";
+
 
 export default function Blurvw({imageUrl, blurAmount=80}) {
     // Memoize the image URL to prevent unnecessary re-fetching
