@@ -37,8 +37,10 @@ export default function PopUp() {
     <Modal animationType="slide" transparent={true} statusBarTranslucent={true} onRequestClose={() => {
       setPopup(false);
     }}>
+       
       <TouchableWithoutFeedback onPress={() => setPopup(false)}>
         <View style={styles.modalOverlay}>
+   
           <TouchableWithoutFeedback>
             <View style={{
               position:'absolute', 
@@ -54,9 +56,10 @@ export default function PopUp() {
         
             
             }}>
-              <Blurvw imageUrl={popupContent?.image}/>
-              {console.log(popupContent)
-              }
+                   <Blurvw imageUrl={popupContent?.image}/>
+               
+             
+             
            
               <View style={[StyleSheet.absoluteFill]}>
                    <PopUpContent content={popupContent}/>

@@ -12,7 +12,8 @@ import {
   Animated,
   BackHandler,
   Pressable,
-  SafeAreaView
+  SafeAreaView,
+  StatusBar
 } from 'react-native';
 import TrackPlayer, { usePlaybackState, useProgress, Event } from 'react-native-track-player';
 import Slider from '@react-native-community/slider';
@@ -126,7 +127,7 @@ export default function Player({ TrackDetail }) {
               <Ionicons
                 name={isPlaying ? 'pause' : 'play'}
                 size={30}
-                color="black"
+                color="rgba(255,255,255,0.7)"
               />
             </TouchableOpacity>
           </Pressable >
@@ -137,16 +138,16 @@ export default function Player({ TrackDetail }) {
       )}
 
       {currentTrack && showFullScreen && (
+      
         <Modal visible={showFullScreen} animationType="slide" transparent={true}
+        
           onRequestClose={toggleFullScreen}>
+              <StatusBar hidden={true}/>
           <View style={{flex:1,backgroundColor:'black'}}>
             <Blurvw imageUrl={currentTrack?.artwork} blurAmount={100}/>
             <View style={styles.fullScreenContainer}>
-              {/* <LinearGradient
-                colors={['rgb(178,200,42)', 'rgb(178, 255, 62)', 'rgba(178,200,200,0.9)']}
-                style={styles.fullScreenGradient}
-              /> */}
-              <TouchableOpacity onPress={toggleFullScreen} style={styles.closeButton}>
+        
+              <TouchableOpacity onPress={toggleFullScreen} >
                 <Ionicons name="chevron-down" size={50} color="rgba(255,255,255,0.7)" />
               </TouchableOpacity>
               <Image source={{ uri: currentTrack?.artwork }} style={styles.fullArtwork} />
@@ -160,9 +161,9 @@ export default function Player({ TrackDetail }) {
                 minimumValue={0}
                 maximumValue={progress.duration}
                 onSlidingComplete={handleSeek}
-                minimumTrackTintColor="black"
+                minimumTrackTintColor="rgba(255,255,255,0.7)"
                 maximumTrackTintColor="#555"
-                thumbTintColor="black"
+                thumbTintColor="white"
               />
               <View style={styles.progressContainer}>
                 <Text style={styles.time}>
@@ -174,18 +175,32 @@ export default function Player({ TrackDetail }) {
               </View>
               <View style={styles.fullControls}>
                 <TouchableOpacity onPress={skipToPrevious}>
-                  <Ionicons name="play-skip-back" size={50} color="rgba(0,0,0,0.7)" />
+                  <Ionicons name="play-skip-back" size={50} color="rgba(255,255,255,0.7)" />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={togglePlayPause}>
                   <Ionicons
                     name={isPlaying ? 'pause-circle' : 'play-circle'}
                     size={80}
-                    color="rgba(0,0,0,0.7)"
+                    color="rgba(255,255,255,0.7)"
                   />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={skipToNext}>
-                  <Ionicons name="play-skip-forward" size={50} color="rgba(0,0,0,0.7)" />
+                  <Ionicons name="play-skip-forward" size={50} color="rgba(255,255,255,0.7)" />
                 </TouchableOpacity>
+              </View>
+               {/* view for button eg like button and download button */}
+              <View style={{flexDirection:'row', justifyContent:'center',width:"100%",position:'absolute',bottom:-20, alignItems:'center'}}>
+                {/* <TouchableOpacity>
+                <Ionicons name="heart" size={30} color="rgba(255,255,255,0.7)" />
+                  
+                </TouchableOpacity> */}
+                <TouchableOpacity style={{backgroundColor:'white',width:'50%', borderRadius:30 ,flexDirection:'row',justifyContent:'center',alignItems:'center',padding:10}} > 
+                 <Text style={{color:'black', fontFamily:'Outfit-Bold'}}>Download</Text>
+                <Ionicons name="download" size={30} color="black" />
+                
+                  
+                </TouchableOpacity>
+
               </View>
             </View>
           </View>
@@ -236,7 +251,7 @@ overflow:'hidden'
     flex: 1,
   },
   title: {
-    color: 'rgba(0,0,0,0.7)',
+    color: 'rgba(255,255,255,0.7)',
     fontSize: 14,
     fontFamily: 'Outfit-Bold',
   },
@@ -249,18 +264,14 @@ overflow:'hidden'
     padding: 5,
   },
   fullScreenContainer: {
-    
-    
+
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     position:'absolute',
-    
-    bottom:0,
+    bottom:35,
     height:'100%',
     width:'100%',
-   
-  
   },
   fullScreenGradient: {
     position: 'absolute',

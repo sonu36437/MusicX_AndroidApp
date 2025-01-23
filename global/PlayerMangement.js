@@ -170,7 +170,7 @@ class PlayerManagement {
         this.queue.currentIndex = index;
     }
     formatTracks = (tracksData) => {
-        console.log("trackData: "+trackData);
+     
 
         const tracks = tracksData.items ? tracksData.items.map(item => item.track) : tracksData.tracks.item ||tracksData;
 

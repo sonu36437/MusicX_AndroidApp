@@ -51,6 +51,15 @@ export const PlayerContextProvider = ({ children }) => {
   }
 
   const addToQueue = (tracks, index, source,nextPageBaseUrl=null) => {
+    console.log( "clicked song:",tracks[index]);
+    console.log("form the queeu: ",playerManagement.getTracksInQueue().queue[index]);
+    if(tracks[index].id!==playerManagement.getTracksInQueue().queue[index]){
+      playerManagement.clearQueue();
+
+    }
+    
+    
+    
      const src=String(source);
      const regex=/search/ig
      const result=regex.test(src);
@@ -76,7 +85,7 @@ export const PlayerContextProvider = ({ children }) => {
 
     if (queueLength < 1 || queueLength < index || source !== currentSource) {
      if(nextPageBaseUrl!==null) playerManagement.fetchMoreUrl=nextPageBaseUrl;
-      // console.log(tracks[index]);
+    
       if (source !== currentSource) {
         playerManagement.clearQueue();
       }

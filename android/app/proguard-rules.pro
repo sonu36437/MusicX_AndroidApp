@@ -7,4 +7,6 @@
 # For more details, see
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
+
 # Add any project specific keep options here:
+def enableProguardInReleaseBuilds = true
