@@ -142,7 +142,7 @@ export default function Player({ TrackDetail }) {
         <Modal visible={showFullScreen} animationType="slide" transparent={true}
         
           onRequestClose={toggleFullScreen}>
-              <StatusBar hidden={true}/>
+            
           <View style={{flex:1,backgroundColor:'black'}}>
             <Blurvw imageUrl={currentTrack?.artwork} blurAmount={100}/>
             <View style={styles.fullScreenContainer}>

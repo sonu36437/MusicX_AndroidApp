@@ -1,6 +1,7 @@
 import { View, StyleSheet ,StatusBar} from 'react-native';
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native';
 import { AuthContextProvider } from './context/AuthContext';
 import AppNav from './AppNav/AppNav';
 import { useAuth } from './context/AuthContext';
@@ -13,19 +14,24 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <AuthContextProvider>
-      <StatusBar backgroundColor="black" barStyle="light-content" />
-      <View style={{ flex:1,backgroundColor:"black"}}>
-      <AppNav />
-      </View>
-    </AuthContextProvider>
+   
+    // <AuthContextProvider>
+     
+
+    //   <AppNav />
+
+ 
+ 
+    // </AuthContextProvider>
+    <View style={{flex:1, backgroundColor:'red'}}>
+      <AuthContextProvider>
+      <StatusBar barStyle={'default'}/>
+       <AppNav />
+       </AuthContextProvider>
+
+    </View>
+  
   );
 }
 
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-});

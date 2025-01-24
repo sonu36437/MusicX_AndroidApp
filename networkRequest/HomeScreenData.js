@@ -1,42 +1,46 @@
-import axios from "axios";
 import { fetchTracks } from "./spotifyRequest";
+import { getStoredPref } from "../global/saveuserlistningData";
 
-class HomeData{
-async getUserTopSongs(offset=0,limit=20){
-  console.log("hleeow top songs");
-  
-  // const res=await fetchTracks(`https://api.spotify.com/v1/me/top/tracks`)
-  // console.log(res);
-  const response = await axios("https://api.spotify.com/v1/me/top/tracks",{
-    
-  });
+class HomeData {
+  async getUserSavedArtists() {
+    try {
+      const data = await getStoredPref();
 
-  
-  // const data=res.items.map((ele)=>{
-  //   return ele.name;
-    
+      // Extract artists and flatten the array
+      const savedArtists = data.flatMap((d) => d.artists || []);
 
-  // })
-  // return data;
+      if (savedArtists.length < 3) {
+        return null; // No action if there are less than 3 artists
+      }
 
- }
- async getNewTracks(){
-    const url=`https://api.spotify.com/v1/search?q=${encodeURI("new Release")}&type=track&limit=50`
-    const res=await fetchTracks(url);
-  
-    
-    const data= res.tracks.items.map((ele)=>{
-   
-    return ele;
-        
+      // Get the last 3 artists
+      const recentlyListenedArtists = savedArtists.slice(-3);
 
-    })
-    
- 
-    
-    return data;
+      // Combine into a single string
+      const prefInString = recentlyListenedArtists.join(" ");
+      console.log(prefInString);
 
- }
+      return prefInString;
+    } catch (error) {
+      console.error("Error in getUserTopSongs:", error);
+      return null;
+    }
+  }
+
+  async getNewTracks(searchQuery,limit=50) {
+    try {
+      console.log(searchQuery);
+      const url = `https://api.spotify.com/v1/search?q=${searchQuery}&type=track&limit=${limit}`;
+      const res = await fetchTracks(url);
+
+      const data = res.tracks.items.map((ele) => ele);
+      return data;
+    } catch (error) {
+      console.error("Error in getNewTracks:", error);
+      return [];
+    }
+  }
 }
-const Homedata=new HomeData();
+
+const Homedata = new HomeData();
 export default Homedata;

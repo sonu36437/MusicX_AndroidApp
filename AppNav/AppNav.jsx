@@ -21,6 +21,7 @@ export default function AppNav() {
   const { authToken } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [playingTrack,setPlayingTrack]=useState(null);
+  const [prefrences,setprefrences]=useState(null);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -56,10 +57,18 @@ export default function AppNav() {
       <PlayerContextProvider>
         <DownloadContextProvider>
         <NavigationContainer>
-          <View style={{ flex: 1 }}>
-            <Stack.Navigator>
+      
+            <Stack.Navigator >
               {authToken ? (
+             
+                  
+            
                 <>
+               {/* { prefrences!==null &&<Stack.Screen
+                name='userPreferences'
+                component={}
+               options={{ headerShown: false, headerStyle: { backgroundColor: 'red' } }} 
+               />} */}
                   <Stack.Screen 
                     name="Tabs" 
                     component={MyTabs} 
@@ -79,7 +88,7 @@ export default function AppNav() {
               )}
             </Stack.Navigator>
             {authToken && <View><Player TrackDetail={playingTrack}/></View>}
-          </View>
+     
           <PopUp />
         </NavigationContainer>
         </DownloadContextProvider>

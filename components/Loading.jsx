@@ -13,7 +13,8 @@ export default function Loading({size='large',color="white"}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop:20,
+ 
+    backgroundColor:'black',
     justifyContent: 'center',
     alignItems: 'center',
   },

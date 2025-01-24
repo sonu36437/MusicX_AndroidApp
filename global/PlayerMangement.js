@@ -5,6 +5,9 @@ import { loadMore } from "../networkRequest/loadMore";
 import RNFS from 'react-native-fs'
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert, LogBox } from "react-native";
+import { getRecommendTracks, saveUserListeningActivity } from "./saveuserlistningData";
+import Homedata from "../networkRequest/HomeScreenData";
+
 
 class PlayerManagement {
     constructor() {
@@ -126,7 +129,9 @@ class PlayerManagement {
     }
 
     async fetchSongAndPlay(song) {
-        //  console.log("songsdljf: "+ song.id);
+        console.log("song for fething,",song);
+        
+     
         const local = await this.fetchFromLocalIfAvilable(song.id)
         console.log(local.path);
 
@@ -151,6 +156,7 @@ class PlayerManagement {
         await TrackPlayer.reset();
         await TrackPlayer.add(track_with_url);
         await TrackPlayer.play();
+       await saveUserListeningActivity(song)
 
     }
     async playSingle(song) {
@@ -193,6 +199,22 @@ class PlayerManagement {
 
     async skipToNext() {
         const nextSong = this.queue.getNextSong();
+        console.log(this.playingFrom);
+        // if(this.playingFrom==='search' || this.playingFrom==="home"){
+        //     const artist= await Homedata.getUserSavedArtists();
+        //     console.log("here artist are: ",artist);
+            
+        //     const response=await getRecommendTracks(artist)
+        //     console.log(response);
+            
+            
+            
+            
+
+            
+        // }
+    
+        
         console.log(this.queue.getQueueLength())
         console.log(this.fetchMoreUrl);
         if (this.queue.getQueueLength() <= 0) {

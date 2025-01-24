@@ -63,10 +63,10 @@ export const PlayerContextProvider = ({ children }) => {
      const src=String(source);
      const regex=/search/ig
      const result=regex.test(src);
-      if(result){
+      if(result || source==="home"){
     const formattedTracks=formatTracks(tracks);
       playerManagement.playSingle(formattedTracks[index])
-      playerManagement.playingFrom=src.match(regex)[0];
+     result? playerManagement.playingFrom=src?.match(regex)[0]:playerManagement.playingFrom=source;
   
       
       
