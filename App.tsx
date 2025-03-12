@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { AuthContextProvider } from './context/AuthContext';
 import AppNav from './AppNav/AppNav';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useAuth } from './context/AuthContext';
 
 
@@ -23,13 +24,16 @@ export default function App() {
  
  
     // </AuthContextProvider>
+    <GestureHandlerRootView>
     <View style={{flex:1, backgroundColor:'red'}}>
       <AuthContextProvider>
       <StatusBar barStyle={'default'}/>
        <AppNav />
        </AuthContextProvider>
+      
 
     </View>
+    </GestureHandlerRootView>
   
   );
 }

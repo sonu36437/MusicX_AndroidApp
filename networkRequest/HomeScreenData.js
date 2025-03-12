@@ -14,7 +14,7 @@ class HomeData {
       }
 
       // Get the last 3 artists
-      const recentlyListenedArtists = savedArtists.slice(-3);
+      const recentlyListenedArtists = savedArtists.slice(-7);
 
       // Combine into a single string
       const prefInString = recentlyListenedArtists.join(" ");

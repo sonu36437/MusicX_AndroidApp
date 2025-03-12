@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
-  ScrollView,
   Dimensions,
   FlatList,
+  // ScrollView,
   TouchableOpacity,
   Image,
   StyleSheet,
 } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { usePlayerContext } from '../context/PlayerContext';
 import Homedata from '../networkRequest/HomeScreenData';
 import Loading from '../components/Loading';
@@ -56,13 +57,12 @@ export default function Home() {
   const [userChoice, setUserChoice] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch data for home screen
   const getHomeData = async () => {
     try {
-      const newTrackRes = await Homedata.getNewTracks('renuka panwar , ruchika jangid');
+      const newTrackRes = await Homedata.getNewTracks('');
       const bollywoodRes = await Homedata.getNewTracks('Trending songs');
       const userPrefQuery = await Homedata.getUserSavedArtists();
-      const userPref = userPrefQuery ? await Homedata.getNewTracks(userPrefQuery) : [];
+      const userPref = userPrefQuery ? await Homedata.getNewTracks(userPrefQuery) : "";
 
       setNewTracks(newTrackRes);
       setBollywoodHits(bollywoodRes);
@@ -74,7 +74,6 @@ export default function Home() {
     }
   };
 
-  // UseEffect to fetch home data on mount
   useEffect(() => {
     getHomeData();
   }, []);
@@ -85,10 +84,10 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <NewSongList data={newTracks} title="New Releases" />
+      <ScrollView contentContainerStyle={styles.scrollContainer} alwaysBounceVertical={true}  bouncesZoom={true}>
+        <NewSongList data={newTracks} title="Trending" />
         <NewSongList data={bollywoodHits} title="Bollywood Hits" />
-        <NewSongList data={userChoice} title="Based on Your Activity" />
+        <NewSongList data={userChoice} title="Songs you may Like" />
       </ScrollView>
     </View>
   );
@@ -109,14 +108,15 @@ const styles = StyleSheet.create({
     color: 'white',
     fontFamily: 'Outfit-Bold',
     fontSize: 22,
-    paddingHorizontal: 20,
-    marginBottom: 15,
+    // paddingHorizontal: 20,
+    paddingLeft:10,
+    marginBottom: 10,
   },
   songCard: {
     height: height / 3,
     width: width / 2.3,
     marginHorizontal: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(22,30,22,0.5)',
     borderRadius: 15,
     overflow: 'hidden',
     elevation: 5,

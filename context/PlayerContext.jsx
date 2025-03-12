@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import playerManagement from '../global/PlayerMangement';
-import TrackPlayer from 'react-native-track-player';
+import {TrackPlayer,RepeatMode }from 'react-native-track-player';
 import { AppState } from 'react-native';
 import SongQueue from '../global/Queue';
 import { play } from 'react-native-track-player/lib/src/trackPlayer';
+
 
 export const PlayerContext = createContext();
 
@@ -103,6 +104,7 @@ export const PlayerContextProvider = ({ children }) => {
       setCurrentTrack(playerManagement.particularIndexSong(index));
       playerManagement.setCurrentSongIndex(index);
       playerManagement.fetchSongAndPlay(playerManagement.particularIndexSong(index));
+     
 
     }
 

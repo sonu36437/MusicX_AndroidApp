@@ -17,7 +17,7 @@ export default function MyTabs() {
     backBehavior="firstRoute"
     screenOptions={({ route }) => ({
       popToTopOnBlur: true,
-      animation: 'shift',
+      animation: 'none',
       tabBarIcon: ({ focused, color, size }) => {
         let iconName;
   

@@ -110,7 +110,8 @@ class PlayerManagement {
                     Capability.SkipToNext,
                     Capability.SkipToPrevious,
                     Capability.Stop,
-                    Capability.SeekTo
+                    Capability.SeekTo,
+                    
 
                 ],
                 color: 3,
@@ -134,16 +135,6 @@ class PlayerManagement {
      
         const local = await this.fetchFromLocalIfAvilable(song.id)
         console.log(local.path);
-
-
-
-
-
-
-
-
-
-
         const songScr = local.found ? local.path : await getSongSrc(song.title + " " + song.artists);
         const track_with_url = {
             ...song, url: local.found ? songScr : songScr[songScr.length - 1].url
@@ -151,23 +142,23 @@ class PlayerManagement {
         //here the array is present to create an array and save the in asyncStorage to 
         //user listning behevior and to recommend song
         //at most only 10 artist will be saved if exceed 10 and start removeing from the front 
-
-
         await TrackPlayer.reset();
         await TrackPlayer.add(track_with_url);
         await TrackPlayer.play();
+        // await TrackPlayer.setRepeatMode(RepeatMode.Track)
        await saveUserListeningActivity(song)
-
     }
     async playSingle(song) {
         this.fetchSongAndPlay(song);
-
     }
 
 
     getCurrentSong() {
         return this.queue.getCurrentSong();
     }
+    // setRepeatMode(repeat=false){
+    //     repeat ? TrackPlayer.setRepeatMode(RepeatMode.Track): TrackPlayer.setRepeatMode(RepeatMode.Off);
+    // }
 
     setCurrentSong(song) {
         this.queue.setCurrentSong(song);

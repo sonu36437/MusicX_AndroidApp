@@ -14,6 +14,7 @@ import TrackPlayer, { usePlaybackState, useProgress,Event } from 'react-native-t
 import PopUp from '../components/PopUp';
 import{PopupContextProvider} from '../context/PopupContext'
 import DownloadContextProvider from '../context/SongDownloadStatusContext';
+import Pref from '../screens/Pref';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,7 +22,7 @@ export default function AppNav() {
   const { authToken } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [playingTrack,setPlayingTrack]=useState(null);
-  const [prefrences,setprefrences]=useState(null);
+
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -64,11 +65,12 @@ export default function AppNav() {
                   
             
                 <>
-               {/* { prefrences!==null &&<Stack.Screen
-                name='userPreferences'
-                component={}
-               options={{ headerShown: false, headerStyle: { backgroundColor: 'red' } }} 
-               />} */}
+                {/* <Stack.Screen
+                 name='Pref'
+                 component={Pref}
+                 options={{headerShown:'false'}}
+                ></Stack.Screen> */}
+            
                   <Stack.Screen 
                     name="Tabs" 
                     component={MyTabs} 
