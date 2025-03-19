@@ -15,9 +15,10 @@ export default function MyTabs() {
   return (
     <Tab.Navigator
     backBehavior="firstRoute"
+    
     screenOptions={({ route }) => ({
       popToTopOnBlur: true,
-      animation: 'none',
+      animation: 'shift',
       tabBarIcon: ({ focused, color, size }) => {
         let iconName;
   
@@ -121,7 +122,15 @@ export default function MyTabs() {
       <Tab.Screen
         name="Fav"
         component={Fav}
-        options={{ headerShown: false }}
+        options={{ headerShown: true,  headerStyle:{
+          backgroundColor:'black',
+
+        },
+        headerTitle:"Liked Songs",
+        headerTintColor:'white',
+        headerTitleStyle:{
+          fontFamily:'Outfit-Bold'
+        }, }}
       />
       <Tab.Screen
         name="playlists"

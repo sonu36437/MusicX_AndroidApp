@@ -4,6 +4,8 @@ import { fetchTracks } from '../networkRequest/spotifyRequest';
 import TrackItem from '../components/TrackItem';
 import { usePlayerContext } from '../context/PlayerContext';
 import UserPlaylist from '../networkRequest/userPlayList';
+import Loading from '../components/Loading';
+import { transcode } from 'buffer';
 
 export default function Fav() {
   const [tracks, setTracks] = useState([]);
@@ -70,20 +72,26 @@ export default function Fav() {
       addToQueue={() => handleSongClick(index)}
     />
   );
+  if(isLoading && tracks.length==0){
+    return(
+      <Loading message='Loading your Favourite songs'/>
+    )
+  }
+  if(!isLoading && tracks.length==0){
+    return (
+  <View style={{flex:1 , justifyContent:'center',alignItems:"center" }}>
+    <Text style={{fontFamily:"Outfit-Bold"}}>No songs in liked list </Text>
+  </View>
+    )
+  }
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <Text style={styles.title}>Liked Songs</Text>
-      </View>
+      </View> */}
 
-      {isLoading && !tracks.length && (
-        <Text style={styles.loadingText}>Loading...</Text>
-      )}
-
-      {error && (
-        <Text style={styles.errorText}>Failed to fetch tracks. Please try again.</Text>
-      )}
+   
 
       {tracks.length > 0 ? (
         <FlatList
@@ -112,22 +120,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'black',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    borderTopRightRadius: 5,
-    borderTopLeftRadius: 5,
+   paddingHorizontal:10,
+
+
   },
-  header: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'black',
-    zIndex: 999,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
-  },
+  // header: {
+  //   position: 'absolute',
+  //   top: 0,
+  //   left: 0,
+  //   right: 0,
+  //   backgroundColor: 'black',
+  //   zIndex: 999,
+  //   paddingHorizontal: 20,
+  //   paddingTop: 20,
+  //   paddingBottom: 10,
+  // },
   title: {
     fontSize: 26,
     fontFamily: 'Outfit-Bold',
@@ -140,7 +147,9 @@ const styles = StyleSheet.create({
     fontFamily: 'Outfit-Bold',
   },
   listContent: {
-    paddingTop: 70,
+    paddingTop:10,
+    paddingHorizontal:5,
+
     paddingBottom: 150,
   },
   loadingText: {

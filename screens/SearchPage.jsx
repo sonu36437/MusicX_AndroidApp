@@ -99,7 +99,7 @@ export default function SearchPage() {
       <FlatList
         data={tracks}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item,index) => item.id+index}
         ListHeaderComponent={tracks.length > 0 && <Text style={styles.songsTitle}>Songs</Text>}
         ListFooterComponent={
           tracks.length > 0 && nextPageUrl && (

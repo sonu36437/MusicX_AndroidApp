@@ -194,12 +194,7 @@ export default function Player({ TrackDetail }) {
                 <Ionicons name="heart" size={30} color="rgba(255,255,255,0.7)" />
                   
                 </TouchableOpacity> */}
-                <TouchableOpacity style={{backgroundColor:'white',width:'50%', borderRadius:30 ,flexDirection:'row',justifyContent:'center',alignItems:'center',padding:10}} > 
-                 <Text style={{color:'black', fontFamily:'Outfit-Bold'}}>Download</Text>
-                <Ionicons name="download" size={30} color="black" />
-                
-                  
-                </TouchableOpacity>
+               
 
               </View>
             </View>

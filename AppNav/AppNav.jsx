@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { View, Text, Image, } from 'react-native';
+import { NavigationContainer,DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WebViewLogin from '../screens/WebViewLogin';
 import MyTabs from '../screens/Tab';
@@ -15,6 +15,7 @@ import PopUp from '../components/PopUp';
 import{PopupContextProvider} from '../context/PopupContext'
 import DownloadContextProvider from '../context/SongDownloadStatusContext';
 import Pref from '../screens/Pref';
+import { getAuthToken } from '../networkRequest/auth';
 
 const Stack = createNativeStackNavigator();
 
@@ -28,11 +29,13 @@ export default function AppNav() {
     const checkAuthStatus = async () => {
     
       await new Promise(resolve => setTimeout(resolve, 500)); 
+    setIsLoading(false);
 
-      setIsLoading(false);
+    
     };
-
     checkAuthStatus();
+
+
   }, [authToken]);
 
   useEffect(() => {
@@ -57,7 +60,7 @@ export default function AppNav() {
     <PopupContextProvider>
       <PlayerContextProvider>
         <DownloadContextProvider>
-        <NavigationContainer>
+        <NavigationContainer theme={DarkTheme}>
       
             <Stack.Navigator >
               {authToken ? (

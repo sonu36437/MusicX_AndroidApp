@@ -54,18 +54,25 @@ const NewSongList = ({ data, title }) => {
 export default function Home() {
   const [newTracks, setNewTracks] = useState([]);
   const [bollywoodHits, setBollywoodHits] = useState([]);
+  const [tophindi, setTopHindi] = useState([]);
   const [userChoice, setUserChoice] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const getHomeData = async () => {
     try {
-      const newTrackRes = await Homedata.getNewTracks('');
+      const newTrackRes = await Homedata.getNewTracks('top english');
       const bollywoodRes = await Homedata.getNewTracks('Trending songs');
+      const Test = await Homedata.getNewTracks('top Hindi');
+ 
+    
+
       const userPrefQuery = await Homedata.getUserSavedArtists();
       const userPref = userPrefQuery ? await Homedata.getNewTracks(userPrefQuery) : "";
 
       setNewTracks(newTrackRes);
       setBollywoodHits(bollywoodRes);
+      setTopHindi(Test);
+      
       setUserChoice(userPref);
     } catch (error) {
       console.error('Error fetching home data:', error);
@@ -85,9 +92,14 @@ export default function Home() {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer} alwaysBounceVertical={true}  bouncesZoom={true}>
-        <NewSongList data={newTracks} title="Trending" />
+        <NewSongList data={newTracks} title="Top English" />
         <NewSongList data={bollywoodHits} title="Bollywood Hits" />
-        <NewSongList data={userChoice} title="Songs you may Like" />
+        <NewSongList data={tophindi} title="Top Hindi" />
+      
+      
+       
+        
+       
       </ScrollView>
     </View>
   );
@@ -107,14 +119,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: 'white',
     fontFamily: 'Outfit-Bold',
-    fontSize: 22,
+    fontSize: 18,
     // paddingHorizontal: 20,
     paddingLeft:10,
-    marginBottom: 10,
+    marginBottom: 5,
   },
   songCard: {
-    height: height / 3,
-    width: width / 2.3,
+    height: height / 4,
+    width: width / 3,
     marginHorizontal: 10,
     backgroundColor: 'rgba(22,30,22,0.5)',
     borderRadius: 15,
