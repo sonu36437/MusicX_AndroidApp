@@ -4,21 +4,19 @@ import axios from 'axios';
 export async function fetchTracks(url) {
     console.log("New request is coming:", url);
     const accessToken = await getAuthToken();
-    console.log(accessToken);
-    
     try {
         const response = await axios.get(url || 'https://api.spotify.com/v1/me/tracks', {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
                 "Accept-Language": "en-US,en;q=0.9",
-                'Accept':'*/*',
+                'accept':'*/*',
                 
             },
         });
         return response.data; 
     } catch (e) {
-        console.error("Error fetching tracks:", e);
+        console.error("Error fetching tracs:", e?.message);
         throw e; 
     }
 }
@@ -41,7 +39,7 @@ export async function addToLikedList(id) {
             });
         return response.data;
     } catch (e) {
-        console.error("Error adding to liked list:", e);
+        console.error("Error adding to liked list:", e.message);
         throw e; 
     }
 }

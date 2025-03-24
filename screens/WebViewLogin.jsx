@@ -45,6 +45,8 @@ const WebViewLogin = ({navigation}) => {
         
    
         await AsyncStorage.setItem('sp_dc', cookiesString);
+        await AsyncStorage.setItem('sp_t',cookies?.sp_t?.value);
+        await AsyncStorage.setItem('sp_key',cookies?.sp_key?.value);
         saveAuthToken(cookiesString)
 
         navigation.navigate('Home');

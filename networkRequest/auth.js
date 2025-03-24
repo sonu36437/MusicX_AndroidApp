@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import QuickCrypto from "react-native-quick-crypto";
 import { Buffer } from "react-native-buffer";
+import { Alert } from "react-native";
 
 // const BaseUrl = "https://open.spotify.com";
 
@@ -58,6 +59,8 @@ const generateTotp = async () => {
   const secretCipherBytes = [12,56,76,33,88,44,88,33,78,78,11,66,22,22,55,69,54];
   const xorBytes = secretCipherBytes.map((e, t) => e ^ (t % 33 + 9));
   const xorString = xorBytes.join('');
+
+  
   
   const utf8Bytes = new TextEncoder().encode(xorString);
 
@@ -93,59 +96,70 @@ const generateTotp = async () => {
   return (code % 1000000).toString().padStart(6, '0');
 };
 
-
-export async function getAccessToken(){
+export async function getAccessToken(reason = "transport") {
   try {
     const spDcCookie = await AsyncStorage.getItem('sp_dc');
+    const spKeyCookie = await AsyncStorage.getItem('sp_key');
+    const spTCookie = await AsyncStorage.getItem('sp_t');
+    console.log("spDcCookie: ", spDcCookie);
     
+    if (!spDcCookie) throw new Error('Missing sp_dc cookie');
+
     const totp = await generateTotp();
     const ts = Math.floor(Date.now() / 1000);
-    const url = `https://open.spotify.com/get_access_token?reason=transport&productType=web_player&totp=${totp}&totpVer=5&ts=${ts}`;
+    
+    const url = `https://open.spotify.com/get_access_token?reason=${reason}&productType=web_player&totp=${totp}&totpVer=5&ts=${ts}`;
     
     const res = await fetch(url, {
       headers: {
-        Cookie:`sp_dc=${spDcCookie}`,
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
-        'Accept':'*/*',
-        
-
+        Cookie: `sp_dc=${spDcCookie}; sp_key=${spKeyCookie}; sp_t=${spTCookie}`,
+        // Cookie:"sp_t=9d98fd4217a002ed52d1177226ff6d5d; sp_m=in-en; sp_landing=https%3A%2F%2Fwww.spotify.com%2Fapi%2Fmasthead%2Fv1%2Fmasthead; sp_landingref=https%3A%2F%2Fopen.spotify.com%2F; sp_dc=AQDIAFpb2nf78ToCBbGuBHl2vvFn2Gb1InFdArPDLcC_gL05pT4z_XBLXKNqt8m6Opf8w7w0_vZjy_1eg07ly-jzFeE2-iaQV5Ldvlu57kQgTPzCoFPR0UxZTKhBjibFWGhYaZ3WcPwYgeyyAnSpDxDyOlnrTcfJLGw6aXkFKRZGhqf8FuGyoxzpIRfIN9vCAWDQhXiGNcKHFxxXHg; sp_key=018f5a63-b371-4aa4-ad88-d9c451216d10",
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
       }
     });
     
-    
     const data = await res.json();
-    console.log(data);
-    const accessToken=data.accessToken;
-    const tokenExpiry=data.accessTokenExpirationTimestampMs
-    await saveToken(accessToken, tokenExpiry);
+    console.log(data.accessToken);
     
-    console.log('✅ Access Token:', data.accessToken);
-    console.log('✅ Expiration:', new Date(data.accessTokenExpirationTimestampMs));
-    return accessToken;
+    
+  
+    if (!data.accessToken || data.accessToken.length < 376) {
+    
+        return await getAccessToken("init");
+      
+     
+    }
+    
+    await saveToken(data.accessToken, data.accessTokenExpirationTimestampMs);
+    return {
+      accessToken: data.accessToken,
+      expiryTime: data.accessTokenExpirationTimestampMs
+    };
   } catch (error) {
     console.error('❌ Error:', error.message);
+    throw error;
   }
-};
-
-
+}
 
 export const getAuthToken = async () => {
-  const accessToken = await AsyncStorage.getItem('accessToken');
-  const expiryTime = await AsyncStorage.getItem('tokenExpiry');
+  try {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    const expiryTime = await AsyncStorage.getItem('tokenExpiry');
+    console.log(accessToken);
+   
+    
+    
 
-  if (accessToken && expiryTime) {
-    const isTokenExpired = new Date().getTime() > parseInt(expiryTime);
-
-    if (isTokenExpired) {
-      console.log("token exipred renewing token");
-
-      return await getAccessToken();
+    if (accessToken && expiryTime) {
+      const isExpired = Date.now() > parseInt(expiryTime);
+      if (!isExpired) return accessToken;
     }
-    console.log("token not expired prevouesly");
-    return accessToken;
-  } else {
-    console.log("first time token");
-    return await getAccessToken();
+
+    // Fetch new token if expired/missing
+    const newToken = await getAccessToken();
+    return newToken.accessToken;
+  } catch (error) {
+    console.error('Auth failed:', error);
+    throw error;
   }
 };
-
