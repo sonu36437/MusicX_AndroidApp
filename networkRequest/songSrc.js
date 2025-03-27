@@ -29,7 +29,7 @@ export const getSongSrc = async (query) => {
 
         console.log("Fetching from API...");
         query = encodeURIComponent(query);
-        const response = await axios.get(`https://jiosaavan36437.vercel.app/api/search/songs?query=${(query)}&page=0&limit=1`);
+        const response = await axios.get(`https://musicx-src.sonu36437.workers.dev/api/search/songs?query=${(query)}&page=0&limit=1`);
         const song = await response.data.data.results[0];
 
         if (song && song.downloadUrl) {
