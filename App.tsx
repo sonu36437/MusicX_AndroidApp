@@ -25,7 +25,7 @@ export default function App() {
  
     // </AuthContextProvider>
     <GestureHandlerRootView>
-    <View style={{flex:1, backgroundColor:'red'}}>
+    <View style={{flex:1}}>
       <AuthContextProvider>
       <StatusBar barStyle={'default'}/>
        <AppNav />

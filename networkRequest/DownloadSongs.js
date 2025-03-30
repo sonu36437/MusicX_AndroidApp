@@ -29,13 +29,21 @@ async function isDirectoryExists() {
 }
 export async function downloadSong(songDetails) {
     // const {setSongChange} =useContext(DownloadContext)
+
+    
     try {
-        console.log("songid " + songDetails.id);
+        console.log("songid is " + songDetails.id);
 
         await isDirectoryExists();
         await notifee.requestPermission();
 
-        const downloadDetails = songDetails.title + " " + songDetails.artistArray[0].name;
+
+        const downloadDetails = songDetails?.title + " " + songDetails.artists || songDetails.artistArray[0].name;
+
+        console.log("downlsdsjfljsdlfjslddfjl;sdjf;seofjsdojflsdjfljsdo");
+        
+      
+        
         const response = await getSongSrc(downloadDetails);
         console.log(response[response?.length - 1]?.url);
         const songUrl = response[response?.length - 1].url
@@ -119,7 +127,7 @@ export async function downloadSong(songDetails) {
                 android: {
                     channelId: 'downloads',
                     smallIcon: 'ic_launcher',
-                    largeIcon: songDetails.image,
+                    largeIcon: songDetails?.image|| songDetails.artwork,
                 },
             });
             // setSongChange((prev)=>{
@@ -130,7 +138,7 @@ export async function downloadSong(songDetails) {
         }
         console.log(`Downloading thumbnail for: ${songDetails.title}`);
         const thumbnailDownload = RNFS.downloadFile({
-            fromUrl: songDetails.image,
+            fromUrl: songDetails?.artwork ||songDetails?.image ,
             toFile: thumbnailPath,
         });
         const thumbnailResult = await thumbnailDownload.promise;
@@ -144,7 +152,7 @@ export async function downloadSong(songDetails) {
         const metadata = {
             id: songDetails.id,
             title: songDetails.title,
-            artist: songDetails.artistArray[0].name,
+            artist: songDetails.artists||songDetails.artistArray[0].name,
             thumbnailPath: thumbnailPath,
             songPath: songFilePath,
             downloadedAt: new Date().toISOString(),

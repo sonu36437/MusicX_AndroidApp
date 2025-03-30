@@ -1,6 +1,7 @@
 import React, { useState, useEffect,useCallback,Component } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import useImageColors from '../assets/hooks/useColor';
+import {RepeatMode} from 'react-native-track-player'
 
 import {
   View,
@@ -18,9 +19,13 @@ import {
 import TrackPlayer, { usePlaybackState, useProgress, Event } from 'react-native-track-player';
 import Slider from '@react-native-community/slider';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Icon from "react-native-vector-icons/MaterialIcons";
 import LinearGradient from 'react-native-linear-gradient';
 import { usePlayerContext } from '../context/PlayerContext';
 import Blurvw from './Blurvw';
+import { setRepeatMode } from 'react-native-track-player/lib/src/trackPlayer';
+import { addToLikedList, fetchTracks, removeFromLikedList } from '../networkRequest/spotifyRequest';
+import { checkIfDownloaded, downloadSong } from '../networkRequest/DownloadSongs';
 
 
 export default function Player({ TrackDetail }) {
@@ -29,21 +34,27 @@ export default function Player({ TrackDetail }) {
   const [currentTrack, setCurrentTrack] = useState(null);
   const playbackState = usePlaybackState();
   const [color, setColors] = useState(null);
+  const [liked,setLiked]=useState(false);
+  const [repeat,setrepeat]=useState(false);
   const progress = useProgress();
+  const [isDownload,setIsDownload]=useState(false);
   const navigation= useNavigation();
+ 
+  
+
+
+  
+  
 
 
   const [showFullScreen, setShowFullScreen] = useState(false);
+
+  
   const slideAnim = React.useRef(new Animated.Value(200)).current;
+
   
 
-  useEffect(()=>{
-    const backPressHandler=BackHandler.addEventListener('hardwareBackPress',()=>{console.log("back Predded");
-      console.log("back Predded");
-      
-    })
-    return () => backPressHandler.remove();
-  },[showFullScreen])
+
   
   
 
@@ -53,6 +64,8 @@ export default function Player({ TrackDetail }) {
       setCurrentTrack(TrackDetail);
     }
   
+    
+
 
     const listener = TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, async (event) => {
       if (event.track) {
@@ -64,6 +77,7 @@ export default function Player({ TrackDetail }) {
        
       }
     });
+    
       
  
  
@@ -103,6 +117,64 @@ export default function Player({ TrackDetail }) {
   const toggleFullScreen = () => {
     setShowFullScreen(!showFullScreen);
   };
+  const toggleRepeatMode =async()=>{
+    if(!repeat){
+      await TrackPlayer.setRepeatMode(RepeatMode.Track)
+      setrepeat(true);
+
+    }
+    else{
+      await TrackPlayer.setRepeatMode(RepeatMode.Off)
+      setrepeat(false);
+
+    }
+
+  }
+    const isDownloaded =useCallback(async()=>{
+   
+      
+      const res=await checkIfDownloaded(currentTrack.id);
+      
+      setIsDownload(res);
+       
+    })
+  
+    
+  useEffect(()=>{
+    async function checkliked(){
+      console.log("callled")
+      const res =await fetchTracks(`https://api.spotify.com/v1/me/tracks/contains?ids=${currentTrack.id}`);
+     
+    res[0]?setLiked(true):setLiked(false);
+      
+    }
+    checkliked();
+    isDownloaded();
+  },[currentTrack])
+  const toggleSongLike=useCallback(async(id)=>{
+   if(liked){
+    await removeFromLikedList(id);
+    setLiked(false);
+   }
+   else{
+    await addToLikedList(id);
+    setLiked(true)
+   }
+    
+
+     
+    
+ 
+
+    
+
+  },[currentTrack,liked])
+  const downloadThisSong =()=>{
+    !isDownload && downloadSong(currentTrack); 
+
+
+  }
+
 
   return (
     <>
@@ -189,12 +261,19 @@ export default function Player({ TrackDetail }) {
                 </TouchableOpacity>
               </View>
                {/* view for button eg like button and download button */}
-              <View style={{flexDirection:'row', justifyContent:'center',width:"100%",position:'absolute',bottom:-20, alignItems:'center'}}>
-                {/* <TouchableOpacity>
-                <Ionicons name="heart" size={30} color="rgba(255,255,255,0.7)" />
-                  
-                </TouchableOpacity> */}
-               
+              <View style={{flexDirection:'row', justifyContent:'space-between',width:"100%",position:'absolute',bottom:-20, alignItems:'center', paddingHorizontal:30}}>
+                <TouchableOpacity onPress={() => toggleSongLike(currentTrack.id)}>
+                <Ionicons name="heart" size={30} color={liked ? 'red' : 'rgba(255,255,255,0.7)'} />
+                </TouchableOpacity>
+                  <TouchableOpacity onPress={toggleRepeatMode}>
+               {  repeat ? <Icon name="repeat-on" size={30} color="rgba(255,255,255,0.7)" />: <Icon name="repeat" size={30} color="rgba(255,255,255,0.7)" />}
+                </TouchableOpacity>
+                 <TouchableOpacity onPress={()=>{
+                  downloadThisSong(currentTrack)
+                 }}>
+               {!isDownload ? <Ionicons name="download" size={30} color="rgba(255,255,255,0.7)" />: <Ionicons name="trash" size={30} color="rgba(255,255,255,0.7)" />  }
+                </TouchableOpacity>
+                
 
               </View>
             </View>

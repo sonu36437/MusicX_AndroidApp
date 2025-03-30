@@ -9,7 +9,7 @@ export const getSongSrc = async (query) => {
         console.log("Checking cache for key:", cacheKey);
         
         const cachedSong = await AsyncStorage.getItem(cacheKey);
-        // console.log("Cache result:", cachedSong);
+      
         
         if (cachedSong) {
             console.log("Found cached song data");
@@ -29,24 +29,50 @@ export const getSongSrc = async (query) => {
 
         console.log("Fetching from API...");
         query = encodeURIComponent(query);
-        const response = await axios.get(`https://musicx-src.sonu36437.workers.dev/api/search/songs?query=${(query)}&page=0&limit=1`);
-        const song = await response.data.data.results[0];
+        const response =   await fetchJioSaavnResults(query);
+        const results = response.data?.results;
+        if (!results || results.length === 0) {
+            return res.status(404).json({ error: "No results found" });
+        }
+        const encryptedUrl = results[0].more_info?.encrypted_media_url;
+        console.log( encryptedUrl);
+        
+        const song = (await (axios.get(`https://personal-jio-saavan.vercel.app/search?q=${encodeURIComponent(encryptedUrl)}`))).data;
+            
 
-        if (song && song.downloadUrl) {
+        
+
+        if (song) {
             console.log("Got new download URL, caching it");
             const cacheData = {
-                downloadUrl: song.downloadUrl,
+                downloadUrl: song,
                 timestamp: Date.now()
             };
           
             await AsyncStorage.setItem(cacheKey, JSON.stringify(cacheData));
             console.log("Successfully cached song data");
-            return song.downloadUrl;
+            return song;
         } else {
             throw new Error('No download URL found for the song');
         }
     } catch (error) {
         console.error('Error in getSongSrc:', error);
         return null;
+    }
+};
+
+
+const fetchJioSaavnResults = async (queryParam) => {
+    try {
+        const response = await axios.get(
+            `https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&_marker=0&api_version=4&ctx=web6dot0&q=${queryParam}&p=0&n=1`,
+           
+        );
+   
+        
+        return response;
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
     }
 };
