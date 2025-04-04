@@ -36,8 +36,8 @@ Built with React Native, MusicX delivers studio-grade audio streaming (up to 320
 ## 🚀 Get Started
 ```bash
 # 1. Clone repository
-git clone https://github.com/yourusername/musicx
-cd musicx
+git clone https://github.com/sonu36437/MusicX_AndroidApp
+cd MusicX_AndroidApp
 
 # 2. Install dependencies
 yarn install
