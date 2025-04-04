@@ -80,7 +80,7 @@ export default function Fav() {
   if(!isLoading && tracks.length==0){
     return (
   <View style={{flex:1 , justifyContent:'center',alignItems:"center" }}>
-    <Text style={{fontFamily:"Outfit-Bold"}}>No songs in liked list </Text>
+    <Text style={{fontFamily:"Outfit-Bold", color:'white', fontSize:24}}>No songs in liked list </Text>
   </View>
     )
   }

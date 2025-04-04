@@ -2,6 +2,7 @@ import React,{createContext,useContext, useEffect,useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import playerManagement from "../global/PlayerMangement";
 import TrackPlayer from "react-native-track-player";
+import CookieManager from "@react-native-cookies/cookies";
 
 
 const AuthContext = createContext();
@@ -28,10 +29,10 @@ export function AuthContextProvider({children}){
         await playerManagement.destroyPlayer();
         await TrackPlayer.pause();
 
-       
-        
-
         AsyncStorage.removeItem('sp_dc');
+        await CookieManager.clearAll();
+    
+        
     }
 
 

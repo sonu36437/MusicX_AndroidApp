@@ -16,6 +16,7 @@ import{PopupContextProvider} from '../context/PopupContext'
 import DownloadContextProvider from '../context/SongDownloadStatusContext';
 import Pref from '../screens/Pref';
 import { getAuthToken } from '../networkRequest/auth';
+import SettingsScreen from '../screens/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -83,6 +84,11 @@ export default function AppNav() {
                     name="ComingSoon" 
                     component={ComingSoon} 
                     options={{ headerShown: false }}
+                  />
+                  <Stack.Screen name="settings" component={SettingsScreen}
+                  options={{headerBackTitle:'settings',headerTitleStyle:{color:'white',fontFamily:"Outfit-Bold"},
+                  headerStyle:{backgroundColor:'black'}
+                }}
                   />
                 </>
               ) : (

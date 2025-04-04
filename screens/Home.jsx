@@ -13,8 +13,12 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { usePlayerContext } from '../context/PlayerContext';
 import Homedata from '../networkRequest/HomeScreenData';
 import Loading from '../components/Loading';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+const Stack= createNativeStackNavigator();
 
 const { width, height } = Dimensions.get('window');
+
+
 
 const NewSongList = ({ data, title }) => {
   const { addToQueue } = usePlayerContext();
@@ -63,9 +67,6 @@ export default function Home() {
       const newTrackRes = await Homedata.getNewTracks('top english');
       const bollywoodRes = await Homedata.getNewTracks('Trending songs');
       const Test = await Homedata.getNewTracks('top Hindi');
- 
-    
-
       const userPrefQuery = await Homedata.getUserSavedArtists();
       const userPref = userPrefQuery ? await Homedata.getNewTracks(userPrefQuery) : "";
 

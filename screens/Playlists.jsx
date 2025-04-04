@@ -5,6 +5,7 @@ import PlaylistItem from '../components/PlaylistItem';
 import { ScrollView } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import PlayListSongs from './PlayListSongs';
+import Loading from '../components/Loading';
 
 const Stack = createNativeStackNavigator();
 const PlaylistStackNavigator=()=>{
@@ -38,6 +39,15 @@ const PlaylistScreen = () => {
         <Text style={[styles.title, { color: 'red' }]}>Error: {error}</Text>
       </View>
     );
+  }
+  if(currentUserPlaylist.length==0){
+    return (
+      <>
+      <View style={{flex:1, backgroundColor:'black', justifyContent:'center',alignItems:'center'}}>
+        <Text style={{fontFamily:'Outfit-Bold'}}>No songs Liked yet</Text>
+      </View>
+      </>
+    )
   }
  
   return (

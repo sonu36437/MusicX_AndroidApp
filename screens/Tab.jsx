@@ -7,12 +7,15 @@ import SearchPage from './SearchPage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PlaylistStackNavigator from './Playlists';
 import Downloads from './Downloads';
+import { useNavigation } from '@react-navigation/native';
 
 
 const Tab = createBottomTabNavigator();
 
 export default function MyTabs() {
+  const navigation= useNavigation();
   return (
+
     <Tab.Navigator
     backBehavior="firstRoute"
     
@@ -104,7 +107,7 @@ export default function MyTabs() {
       <TouchableOpacity
         onPress={() => {
          
-          console.log('Settings pressed');
+        navigation.navigate("settings")
         }}
         style={{ marginRight: 15 }} 
       >

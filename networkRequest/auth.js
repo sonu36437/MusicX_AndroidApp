@@ -137,6 +137,7 @@ export async function getAccessToken(reason = "transport") {
     };
   } catch (error) {
     console.error('❌ Error:', error.message);
+    Alert.alert("Authentication error",error.message);
     throw error;
   }
 }

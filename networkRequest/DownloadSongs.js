@@ -181,6 +181,19 @@ export async function checkIfDownloaded(songId) {
     }
     return false;
 }
+
+
+export async function deleteAllSongs(){
+    const exists= await RNFS.exists(downloadLocation);
+      if(exists){
+       await RNFS.unlink(downloadLocation);
+      }
+      else{
+        Alert.alert("error no dirctory found")
+      }
+  
+    
+}
 export async function deleteDownloadedSong(songId) {
     const songName = `${downloadLocation}/${songId}.mp4`
     const thumbnailPath = `${downloadLocation}/${songId}_.jpg`
@@ -205,3 +218,5 @@ export async function deleteDownloadedSong(songId) {
     
    }
 }
+
+
