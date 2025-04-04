@@ -1,6 +1,6 @@
 # MusicX 🎶  
 **The Ultimate Ad-Free Music Experience**  
-[![React Native](https://img.shields.io/badge/React_Native-0.73-blue?logo=react)](https://reactnative.dev)
+[![React Native](https://img.shields.io/badge/React_Native-0.74-blue?logo=react)](https://reactnative.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](https://opensource.org/licenses/MIT)
 
 ![MusicX Interface](https://via.placeholder.com/1200x400.png?text=MusicX+Player+Interface)
