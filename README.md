@@ -47,3 +47,8 @@ yarn start
 
 # 4. Run on device (Android)
 yarn android
+```
+- disclaimer made this only for educational purpose, this can be turn down any time in future 
+
+
+
